@@ -36,7 +36,8 @@ jobs:
         version: 0.10.0
     - uses: vlang/setup-v@v1
       with:
-        version: 0.3.2
+        check-latest: true
+        stable: true
 
     # Install python packages if not cached
     - name: cache-python
