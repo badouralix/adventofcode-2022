@@ -18,7 +18,6 @@ class SubmissionZig(SubmissionWrapper):
                 "zig",
                 "build-exe",
                 "-OReleaseFast",
-                "--strip",
                 "-lc",
                 "-femit-bin=" + tmp.name,
                 file,
