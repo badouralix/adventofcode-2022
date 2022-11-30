@@ -1,0 +1,29 @@
+{
+    "name": "adventofcode-2022",
+    "version": "0.1.0",
+    "description": "repository of proposed solutions to Advent Of Code 2022 edition",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/badouralix/adventofcode-2022.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/badouralix/adventofcode-2022/issues"
+    },
+    "homepage": "https://github.com/badouralix/adventofcode-2022#readme",
+    "dependencies": {
+        "lodash": ">=4.17.13",
+        "ts-node": "^8.5.4",
+        "tslint": "^5.20.1",
+        "typescript": "^3.7.3"
+    },
+    "devDependencies": {
+        "@types/lodash": "^4.14.149",
+        "@types/node": "^14.14.14"
+    }
+}

@@ -1,0 +1,8 @@
+[package]
+name = "adventofcode-2022"
+version = "0.1.0"
+authors = []
+rust-version = "1.56"
+edition="2021"
+
+[dependencies]

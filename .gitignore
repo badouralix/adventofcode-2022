@@ -1,0 +1,38 @@
+*.pyc
+*_pyx_build
+.DS_Store
+.idea/
+node_modules/
+.venv
+venv
+.vscode
+target/
+*.rs.bk
+.aoc
+# To allow to keep code but not push it because it's too slow
+*.save
+# To allow to work on gocode
+workspace
+
+.deps
+
+# No effing test ;)
+*_test.go
+
+Pipfile
+Pipfile.lock
+
+zig-cache/
+
+# Vim files
+*.swp
+
+# Ocaml
+_build
+_opam
+.merlin
+dune
+_esy
+
+esy.lock
+stable
