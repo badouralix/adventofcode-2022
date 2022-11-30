@@ -44,7 +44,7 @@ jobs:
 
     # Install python packages if not cached
     - name: cache-python
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       id: cache-python
       with:
         path: ~/.local/lib/python3.8/site-packages
@@ -55,7 +55,7 @@ jobs:
 
     # Install rust if not cached TODO
     # - name: cache-cargo
-    #   uses: actions/cache@v1
+    #   uses: actions/cache@v3
     #   id: cache-cargo
     #   with:
     #     path: ~/.cargo/.bin
