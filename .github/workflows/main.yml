@@ -34,10 +34,13 @@ jobs:
     - uses: goto-bus-stop/setup-zig@v2
       with:
         version: 0.10.0
-    - uses: vlang/setup-v@v1
-      with:
-        check-latest: true
-        stable: true
+    # TODO: switch back to vlang/setup-v@v1 when it supports not compiling everything from scratch every time
+    - name: Install vlang
+      run: |
+        wget -P /tmp https://github.com/vlang/v/releases/latest/download/v_linux.zip
+        unzip -d /tmp /tmp/v_linux.zip
+        sudo /tmp/v/v symlink
+        # We can not remove /tmp/v/ as /usr/local/bin/v needs some files in there
 
     # Install python packages if not cached
     - name: cache-python
