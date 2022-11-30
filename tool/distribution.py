@@ -1,11 +1,10 @@
-
-HISTOGRAM_CHARS = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
+HISTOGRAM_CHARS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 HISTOGRAM_WIDTH = 6
 
 
 def get_time_distribution(durations):
     if not durations:
-        return ''
+        return ""
     _max, _min = max(durations), min(durations)
     n = HISTOGRAM_WIDTH
     step = (_max - _min) / float(n)

@@ -1,9 +1,8 @@
 import os
 import sys
-
-from Cython.Build import cythonize
 from distutils.core import setup
 
+from Cython.Build import cythonize
 
 CYTHON_DEBUG = bool(os.getenv("CYTHON_DEBUG", ""))
 
@@ -18,6 +17,7 @@ with open(script_name, "r") as script:
     for line in script.readlines():
         if line.startswith("cimport numpy") and "numpy" not in included:
             import numpy
+
             include_dirs.append(numpy.get_include())
             included.add("numpy")
 

@@ -7,9 +7,8 @@ from os import walk
 from shutil import which
 
 # project
-from tool.model import Problem, Submission, Input
+from tool.model import Input, Problem, Submission
 from tool.runners import LANGUAGES, TOOL_BY_LANGUAGE
-
 
 _DAY_PATH_PATTERN = "day-[0-9]*"
 _PART_PATH_PATTERN = "part-[0-9]*"

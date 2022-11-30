@@ -1,5 +1,5 @@
-import os
 import errno
+import os
 import subprocess
 import tempfile
 
@@ -17,18 +17,18 @@ class SubmissionCs(SubmissionWrapper):
         subprocess.run(["cp", file, self.temporary_directory], check=True)
         completed_process = subprocess.run(
             [
-                "dotnet", 
-                "build", 
-                "--configuration", 
+                "dotnet",
+                "build",
+                "--configuration",
                 "Release",
-                os.path.join(self.temporary_directory, "aoc.csproj"), 
+                os.path.join(self.temporary_directory, "aoc.csproj"),
                 "--output",
-                os.path.join(self.temporary_directory, "bin")
+                os.path.join(self.temporary_directory, "bin"),
             ],
-            capture_output=True
+            capture_output=True,
         )
         if completed_process.returncode != 0:
-            raise CompilationError(completed_process.stdout.decode('unicode_escape'))
+            raise CompilationError(completed_process.stdout.decode("unicode_escape"))
         self.executable = os.path.join(self.temporary_directory, "bin", "aoc")
         self.file = file
 

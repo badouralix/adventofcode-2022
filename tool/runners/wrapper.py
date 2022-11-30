@@ -25,8 +25,12 @@ class SubmissionWrapper(SubmissionPy):
                 duration_line = line
             if line.startswith("_parse"):
                 parse = True
-        lines = [line for line in lines if not (line.startswith("_duration:") or line.startswith("_parse"))]
-        
+        lines = [
+            line
+            for line in lines
+            if not (line.startswith("_duration:") or line.startswith("_parse"))
+        ]
+
         if len(lines) == 0:
             return None, duration_line, []
         if parse:

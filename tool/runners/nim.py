@@ -1,6 +1,6 @@
 import errno
-import tempfile
 import subprocess
+import tempfile
 
 from tool.runners.exceptions import CompilationError
 from tool.runners.wrapper import SubmissionWrapper
