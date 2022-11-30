@@ -14,25 +14,25 @@ The solutions are automatically tested with github-actions.
 
 [![Build Status](https://github.com/badouralix/adventofcode-2022/workflows/CI/badge.svg)](https://github.com/badouralix/adventofcode-2022/actions?query=branch%3Amain)
 
-- [Usage](#usage)
-  - [Installation](#installation)
-  - [Examples](#examples)
-    - [Run last problem](#run-last-problem)
-    - [Run specific problems from specific users](#run-specific-problems-from-specific-users)
-- [Contribute](#contribute)
-  - [New submission with aoc](#new-submission-with-aoc)
-  - [New submission without aoc](#new-submission-without-aoc)
-- [Installing runners to try out other people code](#installing-runners-to-try-out-other-people-code)
-  - [Go](#go)
-  - [Rust](#rust)
-  - [Node](#node)
-  - [Deno](#deno)
-  - [Nim](#nim)
-  - [OCaml](#ocaml)
-  - [PHP](#php)
-  - [C #](#c-)
-  - [Zig](#zig)
-- [History](#history)
+- [Advent of code 2022 solutions  ](#advent-of-code-2022-solutions--)
+  - [Usage](#usage)
+    - [Installation](#installation)
+    - [Examples](#examples)
+      - [Run last problem](#run-last-problem)
+      - [Run specific problems from specific users](#run-specific-problems-from-specific-users)
+  - [Contribute](#contribute)
+    - [New submission with aoc](#new-submission-with-aoc)
+    - [New submission without aoc](#new-submission-without-aoc)
+  - [Installing runners to try out other people code](#installing-runners-to-try-out-other-people-code)
+    - [Go](#go)
+    - [Rust](#rust)
+    - [Node](#node)
+    - [Deno](#deno)
+    - [Nim](#nim)
+    - [PHP](#php)
+    - [C #](#c-)
+    - [Zig](#zig)
+  - [History](#history)
 
 ## Usage
 
@@ -132,7 +132,7 @@ Once you tested your solution you can submit it by making a PR and a GitHub acti
 the same outputs as others' code.
 
 For now we support `c`, `c++`, `java`, `javascript` (with node and deno), `typescript` (with deno) , `go`, `python 3` (+
-`cython`), `ruby`, `rust (stable)`, `julia`, `bash`, `nim`, `v`,`zig`, `ocaml`scripts and `php`.
+`cython`), `ruby`, `rust (stable)`, `julia`, `bash`, `nim`, `v`,`zig`, scripts and `php`.
 
 ### New submission with aoc
 
@@ -211,15 +211,6 @@ curl -fsSL https://deno.land/x/install/install.sh | sh
 
 ```bash
 brew install nim
-```
-
-### OCaml
-
-install esy, esy will take care of installing ocaml and building the dependencies on the first execution (might take a
-while)
-
-```bash
-npm install -g esy
 ```
 
 ### PHP
