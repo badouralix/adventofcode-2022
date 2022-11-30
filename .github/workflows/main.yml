@@ -25,9 +25,9 @@ jobs:
     # The default image natively supports bash, c/c++, go, java, julia, deno, python, ruby, rust
     # For new languages, see https://github.com/actions/virtual-environments/tree/d18c405/images/linux first
 
-    - uses: denolib/setup-deno@v2
+    - uses: denoland/setup-deno@v1
       with:
-        deno-version: v0.x
+        deno-version: v1.x
     # - uses: jiro4989/setup-nim-action@v1
     #   with:
     #     nim-version: 1.4.8
