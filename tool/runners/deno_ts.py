@@ -10,7 +10,7 @@ class SubmissionDenoTS(SubmissionWrapper):
         self.file = file
 
     def language(self):
-        return "deno.ts"
+        return "ts"
 
     def exec(self, input):
         try:
