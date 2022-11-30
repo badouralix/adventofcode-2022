@@ -1,4 +1,4 @@
-# Advent of code 2022 solutions <!-- omit in toc --> <!-- do not remove comment + use Markdown All in One in VSCode -->
+# Advent of code 2022 solutions <!-- omit in toc -->
 
 ⁣    🌟\
     🎄\
@@ -25,7 +25,6 @@ The solutions are automatically tested with github-actions.
 - [Installing runners to try out other people code](#installing-runners-to-try-out-other-people-code)
   - [Go](#go)
   - [Rust](#rust)
-  - [Node](#node)
   - [Deno](#deno)
   - [Nim](#nim)
   - [PHP](#php)
@@ -130,7 +129,7 @@ You can add other functions & modules if you need to. Any external dependency sh
 Once you tested your solution you can submit it by making a PR and a GitHub action will check that your code generates
 the same outputs as others' code.
 
-For now we support `c`, `c++`, `java`, `javascript` (with node and deno), `typescript` (with deno) , `go`, `python 3` (+
+For now we support `c`, `c++`, `java`, `javascript` & `typescript` (with deno), `go`, `python 3` (+
 `cython`), `ruby`, `rust (stable)`, `julia`, `bash`, `nim`, `v`,`zig`, scripts and `php`.
 
 ### New submission with aoc
@@ -139,7 +138,7 @@ You can use `./aoc create` tool to create a new empty submission:
 
 ```text
 usage: aoc create [-h] [-a AUTHOR] [-d DAY] [-p PART]
-                  [-l {c,cpp,go,intcode,java,js,deno.js,deno.ts,ml,nim,php,py,pyx,rb,rs,sh,v,zig}]
+                  [-l {c,cpp,go,intcode,java,js,ts,ml,nim,php,py,pyx,rb,rs,sh,v,zig}]
 
 Create a new submission
 
@@ -148,20 +147,20 @@ optional arguments:
                         submission author
   -d DAY, --day DAY     problem day
   -p PART, --part PART  problem part
-  -l {c,cpp,go,intcode,java,js,deno.js,deno.ts,ml,nim,php,py,pyx,rb,rs,sh,v,zig}, --language {c,cpp,go,intcode,java,js,deno.js,deno.ts,ml,nim,php,py,pyx,rb,rs,sh,v,zig}
+  -l {c,cpp,go,intcode,java,js,ts,ml,nim,php,py,pyx,rb,rs,sh,v,zig}, --language {c,cpp,go,intcode,java,js,ts,ml,nim,php,py,pyx,rb,rs,sh,v,zig}
                         submission language
 ```
 
 you can also use `./aoc config` to setup your local profile
 
 ```text
-usage: aoc config [-h] username {c,cpp,go,intcode,java,js,deno.js,deno.ts,ml,nim,php,py,pyx,rb,rs,sh,v,zig}
+usage: aoc config [-h] username {c,cpp,go,intcode,java,js,ts,ml,nim,php,py,pyx,rb,rs,sh,v,zig}
 
 Configures user parameters
 
 positional arguments:
   username              prefered username
-  {c,cpp,go,intcode,java,js,deno.js,deno.ts,ml,nim,php,py,pyx,rb,rs,sh,v,zig}
+  {c,cpp,go,intcode,java,js,ts,ml,nim,php,py,pyx,rb,rs,sh,v,zig}
                         prefered programming language
 ```
 
@@ -187,12 +186,6 @@ brew install go
 ### Rust
 
 Follow: <https://www.rust-lang.org/tools/install>
-
-### Node
-
-```bash
-brew install node
-```
 
 ### Deno
 

@@ -8,7 +8,6 @@ from tool.runners.cs import SubmissionCs
 from tool.runners.go import SubmissionGo
 from tool.runners.intcode import SubmissionIntcode
 from tool.runners.java import SubmissionJava
-from tool.runners.node import SubmissionNode
 from tool.runners.deno import SubmissionDeno
 from tool.runners.deno_ts import SubmissionDenoTS
 # from tool.runners.nim import SubmissionNim
@@ -24,6 +23,7 @@ from tool.runners.vlang import SubmissionV
 from tool.runners.zig import SubmissionZig
 from tool.utils import load_subclass
 
+# Only the keys of TOOL_BY_LANGUAGE are used, we could switch to a set instead of using a dict
 TOOL_BY_LANGUAGE = {
     "c": "gcc",
     "cpp": "g++",
@@ -31,10 +31,8 @@ TOOL_BY_LANGUAGE = {
     "go": "go",
     "intcode": "python",
     "java": "java",
-    "js": "node",
-    "deno.js": "deno",
-    "deno.ts": "deno",
-    "ts": "./node_modules/.bin/ts-node",
+    "js": "deno",
+    "ts": "deno",
     "nim": "nim",
     "ml": "dune",
     "php": "php",
@@ -74,10 +72,8 @@ def load_submission_runnable(path, language):
     elif language == "java":
         return SubmissionJava(path)
     elif language == "js":
-        return SubmissionNode(path)
-    elif language == "deno.js":
         return SubmissionDeno(path)
-    elif language == "deno.ts":
+    elif language == "ts":
         return SubmissionDenoTS(path)
     elif language == "php":
         return SubmissionPHP(path)
@@ -91,8 +87,6 @@ def load_submission_runnable(path, language):
         return SubmissionJulia(path)
     # elif language == "nim":
     #     return SubmissionNim(path)
-    elif language == "ts":
-        return SubmissionTs(path)
     elif language == "v":
         return SubmissionV(path)
     elif language == "zig":

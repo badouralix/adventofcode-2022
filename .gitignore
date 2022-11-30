@@ -2,10 +2,8 @@
 *_pyx_build
 .DS_Store
 .idea/
-node_modules/
 .venv
 venv
-.vscode
 target/
 *.rs.bk
 .aoc

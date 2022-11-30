@@ -1,25 +1,14 @@
-class Solution {
-    // This is your puzzle input
-    private readonly input: string;
+/**
+ * @param {string} s puzzle input in string format
+ * @returns {string} solution flag
+ */
+const run = (s: string): unknown => {
+  // Your code goes here
+  return s
+};
 
-    constructor(input: string) {
-        this.input = input;
-    }
+let start = Date.now();
+let answer = run(Deno.args[1]);
 
-    run(): number {
-        // Your code goes here
-        return 0
-    }
-
-    main() {
-        const start = Date.now();
-        const answer = this.run();
-
-        console.log(`_duration:${(Date.now() - start).toString()}`);
-        console.log(answer);
-    }
-}
-
-// @ts-ignore
-const solution = new Solution(process.argv[2]);
-solution.main();
+console.log("_duration:" + (Date.now() - start).toString());
+console.log(answer);
