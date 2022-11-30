@@ -5,20 +5,20 @@ from tool.runners.bash import SubmissionBash
 from tool.runners.c import SubmissionC
 from tool.runners.cpp import SubmissionCpp
 from tool.runners.cs import SubmissionCs
+from tool.runners.cython_aoc import SubmissionPyx
+from tool.runners.deno import SubmissionDeno
+from tool.runners.deno_ts import SubmissionDenoTS
 from tool.runners.go import SubmissionGo
 from tool.runners.intcode import SubmissionIntcode
 from tool.runners.java import SubmissionJava
-from tool.runners.deno import SubmissionDeno
-from tool.runners.deno_ts import SubmissionDenoTS
+from tool.runners.julia import SubmissionJulia
 # from tool.runners.nim import SubmissionNim
-from tool.runners.cython_aoc import SubmissionPyx
 from tool.runners.php import SubmissionPHP
 from tool.runners.python import SubmissionPy
 from tool.runners.ruby import SubmissionRb
 from tool.runners.rust import SubmissionRs
-from tool.runners.wrapper import SubmissionWrapper
-from tool.runners.julia import SubmissionJulia
 from tool.runners.vlang import SubmissionV
+from tool.runners.wrapper import SubmissionWrapper
 from tool.runners.zig import SubmissionZig
 from tool.utils import load_subclass
 

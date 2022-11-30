@@ -1,12 +1,11 @@
-import os
-import subprocess
-import shutil
 import importlib
+import os
+import shutil
+import subprocess
 
 from tool.runners.exceptions import RuntimeError
 from tool.runners.python import SubmissionPy
 from tool.utils import BColor, resolve_path
-
 
 CYTHON_DEBUG = bool(os.getenv("CYTHON_DEBUG", ""))
 

@@ -2,12 +2,11 @@
 
 import sys
 import time
-
 from collections import defaultdict
+
 from tabulate import tabulate
 
 import tool.discovery as discovery
-
 from tool.config import CONFIG
 from tool.distribution import get_time_distribution
 from tool.model import Result, Submission
@@ -101,7 +100,7 @@ def run_submission(problem, submission, input, previous, no_debug):
         answer, duration_line, debug_lines = output
 
         if duration_line is not None:
-            msecs = float(duration_line[len("_duration:"):])
+            msecs = float(duration_line[len("_duration:") :])
 
         if len(debug_lines) != 0:
             if no_debug:
@@ -178,7 +177,9 @@ def print_results(results, print_time_dist=False):
                         ),
                         time_distribution=get_time_distribution(result.all_durations),
                         end=BColor.ENDC,
-                    ) if print_time_dist else None,
+                    )
+                    if print_time_dist
+                    else None,
                 ]
                 for result in results
             ]

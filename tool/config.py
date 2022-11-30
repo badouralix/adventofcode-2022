@@ -7,7 +7,6 @@ import os.path
 # project
 from tool.utils import mkdirp
 
-
 _CONFIG_PATH = ".aoc"
 _CONFIG_FILE = os.path.join(_CONFIG_PATH, "config.cfg")
 _CONFIG_SECTION = "preferences"

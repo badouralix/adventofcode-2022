@@ -11,7 +11,6 @@ import tool.discovery as discovery
 from tool.config import CONFIG
 from tool.utils import mkdirp
 
-
 TEMPLATES_PATH = os.path.join("tool", "templates")
 
 

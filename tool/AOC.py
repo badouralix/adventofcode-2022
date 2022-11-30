@@ -4,8 +4,7 @@ import argparse
 import sys
 
 import tool.discovery as discovery
-
-from tool.config import config, CONFIG
+from tool.config import CONFIG, config
 from tool.create import create
 from tool.run import run
 from tool.utils import to_ints

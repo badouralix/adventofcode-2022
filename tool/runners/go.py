@@ -1,8 +1,8 @@
 import errno
 import os
 import stat
-from subprocess import check_output, Popen, PIPE
 import tempfile
+from subprocess import PIPE, Popen, check_output
 
 from tool.runners.exceptions import CompilationError, RuntimeError
 from tool.runners.wrapper import SubmissionWrapper
