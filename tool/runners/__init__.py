@@ -7,7 +7,6 @@ from tool.runners.cpp import SubmissionCpp
 from tool.runners.cs import SubmissionCs
 from tool.runners.cython_aoc import SubmissionPyx
 from tool.runners.deno import SubmissionDeno
-from tool.runners.deno_ts import SubmissionDenoTS
 from tool.runners.go import SubmissionGo
 from tool.runners.intcode import SubmissionIntcode
 from tool.runners.java import SubmissionJava
@@ -69,10 +68,8 @@ def load_submission_runnable(path, language):
         return SubmissionIntcode(path)
     elif language == "java":
         return SubmissionJava(path)
-    elif language == "js":
+    elif language == "js" or language == "ts":
         return SubmissionDeno(path)
-    elif language == "ts":
-        return SubmissionDenoTS(path)
     elif language == "php":
         return SubmissionPHP(path)
     elif language == "rb":
