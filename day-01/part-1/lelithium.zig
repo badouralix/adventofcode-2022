@@ -3,9 +3,21 @@ const std = @import("std");
 var a: std.mem.Allocator = undefined;
 const stdout = std.io.getStdOut().writer(); //prepare stdout to write in
 
-fn run(input: [:0]u8) i64 {
-    // your code here
-    return 0;
+fn run(input: [:0]const u8) u64 {
+    var elves_it = std.mem.split(u8, input, "\n\n");
+    var max: u64 = 0;
+    var cur: u64 = 0;
+    while (elves_it.next()) |elf| {
+        cur = 0;
+        var cal_it = std.mem.tokenize(u8, elf, "\n");
+        while (cal_it.next()) |cal_str| {
+            cur += std.fmt.parseInt(u32, cal_str, 10) catch unreachable;
+        }
+        if (cur > max){
+            max = cur;
+        }
+    }
+    return max;
 }
 
 pub fn main() !void {
