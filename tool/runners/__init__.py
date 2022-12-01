@@ -22,7 +22,6 @@ from tool.runners.wrapper import SubmissionWrapper
 from tool.runners.zig import SubmissionZig
 from tool.utils import load_subclass
 
-# Only the keys of TOOL_BY_LANGUAGE are used, we could switch to a set instead of using a dict
 TOOL_BY_LANGUAGE = {
     "c": "gcc",
     "cpp": "g++",
