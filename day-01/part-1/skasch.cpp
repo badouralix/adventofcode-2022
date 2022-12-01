@@ -1,11 +1,31 @@
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <span>
+#include <sstream>
 #include <string>
+#include <vector>
+
+std::vector<int> Parse(const std::string& input) {
+  std::vector<int> output{};
+  int acc{0};
+  std::istringstream iss(input);
+  for (std::string line; std::getline(iss, line);) {
+    if (line.empty()) {
+      output.push_back(acc);
+      acc = 0;
+    } else {
+      acc += std::stoi(line);
+    }
+  }
+  output.push_back(acc);
+  return output;
+}
 
 std::string Run(const std::string& input) {
-  // Your code goes here
-  return "";
+  std::vector<int> caloriesList{Parse(input)};
+  const int answer{*std::max_element(caloriesList.begin(), caloriesList.end())};
+  return std::to_string(answer);
 }
 
 int main(int argc, char* argv[]) {
