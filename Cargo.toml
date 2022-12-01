@@ -7,6 +7,10 @@ edition="2021"
 
 [dependencies]
 
+[lib]
+name = "aoc"
+path = "./lib/aoc.rs"
+
 [[bin]]
 name = "day-01-part-1-badouralix"
 path = "./day-01/part-1/badouralix.rs"
@@ -14,3 +18,11 @@ path = "./day-01/part-1/badouralix.rs"
 [[bin]]
 name = "day-01-part-2-badouralix"
 path = "./day-01/part-2/badouralix.rs"
+
+[[bin]]
+name = "day-01-part-1-paullgdc"
+path = "./day-01/part-1/paullgdc.rs"
+
+[[bin]]
+name = "day-01-part-2-paullgdc"
+path = "./day-01/part-2/paullgdc.rs"
