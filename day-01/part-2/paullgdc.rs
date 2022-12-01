@@ -6,7 +6,6 @@ fn run(input: &str) -> usize {
     let mut load = 0;
     let mut maxs = [0; 3];
     for l in aoc::paullgdc::LastElem::new(input.lines()).flat_map(|(line, last)| {
-        let line = line.trim();
         if line.is_empty() {
             let total = load;
             load = 0;
@@ -26,4 +25,14 @@ fn run(input: &str) -> usize {
         }
     }
     maxs[0] + maxs[1] + maxs[2]
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::run;
+
+    #[test]
+    fn test_run() {
+        assert_eq!(run("1\n2\n\n4\n\n5\n\n3\n3"), 15)
+    }
 }

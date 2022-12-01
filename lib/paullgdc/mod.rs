@@ -13,11 +13,14 @@ where
     I: Iterator<Item = F>,
 {
     type Item = (F, bool);
+
+    #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
+        let next = self.it.next()?;
         if self.it.peek().is_none() {
-            Some((self.it.next()?, true))
+            Some((next, true))
         } else {
-            Some((self.it.next()?, false))
+            Some((next, false))
         }
     }
 }
