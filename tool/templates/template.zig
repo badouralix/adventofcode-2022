@@ -1,6 +1,6 @@
 const std = @import("std");
 
-var a: *std.mem.Allocator = undefined;
+var a: std.mem.Allocator = undefined;
 const stdout = std.io.getStdOut().writer(); //prepare stdout to write in
 
 fn run(input: [:0]u8) i64 {
@@ -12,12 +12,11 @@ pub fn main() !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator); // create memory allocator for strings
 
     defer arena.deinit(); // clear memory
+    a = arena.allocator();
 
-    var arg_it = std.process.args();
-
+    var arg_it = try std.process.argsWithAllocator(a);
     _ = arg_it.skip(); // skip over exe name
-    a = &arena.allocator; // get ref to allocator
-    const input: [:0]u8 = try (arg_it.next(a)).?; // get the first argument
+    const input: [:0]const u8 = arg_it.next().?;
 
     const start: i128 = std.time.nanoTimestamp(); // start time
     const answer = run(input); // compute answer
