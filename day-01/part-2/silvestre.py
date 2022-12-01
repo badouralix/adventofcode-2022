@@ -15,6 +15,7 @@ class SilvestreSubmission(SubmissionPy):
                 current_calories = 0
             else:
                 current_calories += int(line)
+        all_calories.append(current_calories)
         return sum(sorted(all_calories)[-3:])
 
 
