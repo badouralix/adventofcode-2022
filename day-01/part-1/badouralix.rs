@@ -24,6 +24,7 @@ fn run(input: &str) -> isize {
 
         sum += line.parse::<isize>().unwrap();
     }
+    max = cmp::max(max, sum);
 
     max
 }
