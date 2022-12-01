@@ -16,6 +16,8 @@ class SilvestreSubmission(SubmissionPy):
                 current_calories = 0
             else:
                 current_calories += int(line)
+        if current_calories > max_calories:
+            max_calories = current_calories
         return max_calories 
 
 
