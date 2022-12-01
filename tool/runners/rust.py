@@ -34,9 +34,6 @@ class SubmissionRs(SubmissionWrapper):
             raise CompilationError("Could not compile " + file)
         self.executable = tmpdir.name + "/release/" + file.replace("/", "-")[:-3]
 
-    def language(self):
-        return "rs"
-
     def exec(self, input):
         try:
             return subprocess.check_output([self.executable, input]).decode()

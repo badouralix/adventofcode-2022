@@ -18,9 +18,6 @@ class SubmissionJava(SubmissionWrapper):
         if compile_output:
             raise CompilationError(compile_output)
 
-    def language(self):
-        return "java"
-
     def exec(self, input):
         try:
             # main class MUST be named Solution

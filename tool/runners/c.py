@@ -18,9 +18,6 @@ class SubmissionC(SubmissionWrapper):
             raise CompilationError(compile_output)
         self.executable = tmp.name
 
-    def language(self):
-        return "c"
-
     def exec(self, input):
         try:
             return subprocess.check_output([self.executable, input]).decode()

@@ -12,9 +12,6 @@ class SubmissionBash(SubmissionWrapper):
         self.executable = f"./{file}"
         os.chmod(self.executable, os.stat(self.executable).st_mode | stat.S_IEXEC)
 
-    def language(self):
-        return "sh"
-
     def exec(self, input):
         try:
             return subprocess.check_output([self.executable, input]).decode()

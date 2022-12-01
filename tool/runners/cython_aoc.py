@@ -50,9 +50,6 @@ class SubmissionPyx(SubmissionPy):
         )
         self.module = importlib.import_module(module_name)
 
-    def language(self):
-        return "pyx"
-
     def run(self, input):
         if self.module is None:
             return "-"

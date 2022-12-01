@@ -9,9 +9,6 @@ class SubmissionRb(SubmissionWrapper):
         SubmissionWrapper.__init__(self)
         self.file = file
 
-    def language(self):
-        return "rb"
-
     def exec(self, input):
         try:
             return subprocess.check_output(["ruby", self.file, input]).decode()

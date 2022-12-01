@@ -32,9 +32,6 @@ class SubmissionCs(SubmissionWrapper):
         self.executable = os.path.join(self.temporary_directory, "bin", "aoc")
         self.file = file
 
-    def language(self):
-        return "cs"
-
     def exec(self, input):
         try:
             return subprocess.check_output([self.executable, input]).decode()
