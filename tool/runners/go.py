@@ -19,9 +19,6 @@ class SubmissionGo(SubmissionWrapper):
         os.chmod(tmp.name, os.stat(tmp.name).st_mode | stat.S_IEXEC)
         self.executable = tmp.name
 
-    def language(self):
-        return "go"
-
     def exec(self, input):
         try:
             p = Popen([self.executable], stdin=PIPE, stdout=PIPE)

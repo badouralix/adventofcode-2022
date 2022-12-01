@@ -34,9 +34,6 @@ class SubmissionZig(SubmissionWrapper):
         if os.path.exists(cache):
             shutil.rmtree(cache, ignore_errors=True)
 
-    def language(self):
-        return "zig"
-
     def exec(self, input):
         try:
             return subprocess.check_output([self.executable, input]).decode()

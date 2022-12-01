@@ -7,10 +7,7 @@ class SubmissionPy:
     def __init__(self):
         self.debug_stack = []
 
-    def language(self):
-        return "py"
-
-    # Method that every class implementing Submssion should override
+    # Method that every class implementing Submission should override
     def run(self, input):
         pass
 

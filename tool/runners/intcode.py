@@ -7,9 +7,6 @@ class SubmissionIntcode:
             code_str = f.read()
         self.code = [int(v) for v in code_str.strip().split(",")]
 
-    def language(self):
-        return "intcode"
-
     def run(self, input):
         inputs = [int(v) for v in input.strip().split()]
         out = compute(self.code, [len(inputs)] + inputs)

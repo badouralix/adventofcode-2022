@@ -9,9 +9,6 @@ class SubmissionJulia(SubmissionWrapper):
         SubmissionWrapper.__init__(self)
         self.file = file
 
-    def language(self):
-        return "jl"
-
     def exec(self, input):
         try:
             return subprocess.check_output(["julia", self.file, input]).decode()
