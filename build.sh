@@ -20,8 +20,8 @@ then
     run_from_inputs "$INPUTS_DAYS"
 elif [ "$GITHUB_EVENT_NAME" == "pull_request" ];
 then
-    # Check the diff with master
-    run_from_diff "$(git --no-pager diff --name-only origin/master --)"
+    # Check the diff with main
+    run_from_diff "$(git --no-pager diff --name-only origin/main --)"
 else
     # Check the diff of the last commit
     run_from_diff "$(git --no-pager diff --name-only HEAD HEAD^ --)"
