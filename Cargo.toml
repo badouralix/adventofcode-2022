@@ -28,6 +28,14 @@ name = "day-01-part-2-paullgdc"
 path = "./day-01/part-2/paullgdc.rs"
 
 [[bin]]
+name = "day-01-part-1-thomren"
+path = "./day-01/part-1/thomren.rs"
+
+[[bin]]
+name = "day-01-part-2-thomren"
+path = "./day-01/part-2/thomren.rs"
+
+[[bin]]
 name = "day-01-part-1-jd"
 path = "./day-01/part-1/jd.rs"
 
