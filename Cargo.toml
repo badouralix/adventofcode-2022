@@ -6,3 +6,11 @@ rust-version = "1.56"
 edition="2021"
 
 [dependencies]
+
+[[bin]]
+name = "day-01-part-1-badouralix"
+path = "./day-01/part-1/badouralix.rs"
+
+[[bin]]
+name = "day-01-part-2-badouralix"
+path = "./day-01/part-2/badouralix.rs"
