@@ -4,9 +4,21 @@ var a: std.mem.Allocator = undefined;
 const stdout = std.io.getStdOut().writer(); //prepare stdout to write in
 
 fn run(input: [:0]const u8) i64 {
-    _ = input;
+    var max_calories: i64 = 0;
+    var current_calories: i64 = 0;
+    var iterator = std.mem.split(u8, input, "\n");
+    while (iterator.next()) |token| {
+        if (token.len != 0) {
+            current_calories += std.fmt.parseInt(i64, token, 10) catch unreachable;
+        } else {
+            max_calories = @max(max_calories, current_calories);
+            current_calories = 0;
+        }
+    }
+    max_calories = @max(max_calories, current_calories);
+    current_calories = 0;
     // your code here
-    return 0;
+    return max_calories;
 }
 
 pub fn main() !void {
