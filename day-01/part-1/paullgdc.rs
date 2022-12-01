@@ -6,7 +6,6 @@ fn run(input: &str) -> usize {
     let mut load = 0;
     aoc::paullgdc::LastElem::new(input.lines())
         .flat_map(|(line, last)| {
-            let line = line.trim();
             if line.is_empty() {
                 let total = load;
                 load = 0;
