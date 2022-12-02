@@ -3,19 +3,10 @@ const std = @import("std");
 var a: std.mem.Allocator = undefined;
 const stdout = std.io.getStdOut().writer(); //prepare stdout to write in
 
-pub const Result = enum {
+pub const Result = enum(u2) {
     loss,
     draw,
     win,
-
-    pub inline fn fromLetter(c: u8) Result {
-        return switch (c) {
-            'X' => .loss,
-            'Y' => .draw,
-            'Z' => .win,
-            else => unreachable,
-        };
-    }
 
     pub inline fn requiredShapeForResult(result: Result, opponent_shape: Shape) Shape {
         return switch (result) {
@@ -38,23 +29,10 @@ pub const Result = enum {
     }
 };
 
-pub const Shape = enum(u4) {
+pub const Shape = enum(u2) {
     rock,
     paper,
     scissors,
-
-    pub inline fn fromLetter(c: u8) Shape {
-        return switch (c) {
-            'A' => .rock,
-            'B' => .paper,
-            'C' => .scissors,
-            else => unreachable,
-        };
-    }
-
-    pub inline fn score(shape: Shape) u64 {
-        return @intCast(i64, @enumToInt(shape));
-    }
 
     pub inline fn roundScore(shape_a: Shape, shape_b: Shape) u64 {
         return switch (shape_a) {
@@ -77,14 +55,49 @@ pub const Shape = enum(u4) {
     }
 };
 
+pub inline fn toIndex(opponent_shape: Shape, result: Result) u4 {
+    return @intCast(u4, @enumToInt(opponent_shape)) << 2 | @intCast(u4, @enumToInt(result));
+}
+
+const lookup_table = blk: {
+    var table = [_]u64{0} ** (std.math.maxInt(u4) + 1);
+    for (std.meta.tags(Shape).*) |opponent_shape| {
+        for (std.meta.tags(Result).*) |result| {
+            const index = toIndex(opponent_shape, result);
+            table[index] = Shape.roundScore(opponent_shape, Result.requiredShapeForResult(result, opponent_shape));
+        }
+    }
+
+    break :blk table;
+};
+
+const unroll_factor = 4;
+
 fn run(input: [:0]const u8) u64 {
     var total_score: u64 = 0;
-    var iterator = std.mem.split(u8, input, "\n");
-    while (iterator.next()) |line| {
-        const opponent_shape = Shape.fromLetter(line[0]);
-        const result = Result.fromLetter(line[2]);
-        const required_shape = Result.requiredShapeForResult(result, opponent_shape);
-        total_score += Shape.roundScore(opponent_shape, required_shape);
+    var cursor: usize = 0;
+
+    const lines = (input.len + 1) / 4;
+    const remaining = lines % unroll_factor;
+    var i: usize = 0;
+    while (i < remaining) : ({
+        i += 1;
+        cursor += 4;
+    }) {
+        const opponent_shape = @intToEnum(Shape, input[cursor + 0] - 'A');
+        const result = @intToEnum(Result, input[cursor + 2] - 'X');
+        const index = toIndex(opponent_shape, result);
+        total_score += lookup_table[index];
+    }
+
+    while (cursor < input.len) : (cursor += 4 * unroll_factor) {
+        comptime var j: usize = 0;
+        inline while (j < unroll_factor) : (j += 1) {
+            const opponent_shape = @intToEnum(Shape, input[cursor + j * 4 + 0] - 'A');
+            const result = @intToEnum(Result, input[cursor + j * 4 + 2] - 'X');
+            const index = toIndex(opponent_shape, result);
+            total_score += lookup_table[index];
+        }
     }
     return total_score;
 }

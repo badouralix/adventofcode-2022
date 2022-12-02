@@ -3,23 +3,10 @@ const std = @import("std");
 var a: std.mem.Allocator = undefined;
 const stdout = std.io.getStdOut().writer(); //prepare stdout to write in
 
-pub const Shape = enum(u4) {
+pub const Shape = enum(u2) {
     rock,
     paper,
     scissors,
-
-    pub inline fn fromLetter(c: u8) Shape {
-        return switch (c) {
-            'A', 'X' => .rock,
-            'B', 'Y' => .paper,
-            'C', 'Z' => .scissors,
-            else => unreachable,
-        };
-    }
-
-    pub inline fn score(shape: Shape) u64 {
-        return @intCast(i64, @enumToInt(shape));
-    }
 
     pub inline fn roundScore(shape_a: Shape, shape_b: Shape) u64 {
         return switch (shape_a) {
@@ -42,13 +29,49 @@ pub const Shape = enum(u4) {
     }
 };
 
+pub inline fn toIndex(shape_a: Shape, shape_b: Shape) u4 {
+    return @intCast(u4, @enumToInt(shape_a)) << 2 | @intCast(u4, @enumToInt(shape_b));
+}
+
+const lookup_table = blk: {
+    var table = [_]u64{0} ** (std.math.maxInt(u4) + 1);
+    for (std.meta.tags(Shape).*) |shape_a| {
+        for (std.meta.tags(Shape).*) |shape_b| {
+            const index = toIndex(shape_a, shape_b);
+            table[index] = Shape.roundScore(shape_a, shape_b);
+        }
+    }
+
+    break :blk table;
+};
+
+const unroll_factor = 4;
+
 fn run(input: [:0]const u8) u64 {
     var total_score: u64 = 0;
-    var iterator = std.mem.split(u8, input, "\n");
-    while (iterator.next()) |line| {
-        const shape_a = Shape.fromLetter(line[0]);
-        const shape_b = Shape.fromLetter(line[2]);
-        total_score += Shape.roundScore(shape_a, shape_b);
+    var cursor: usize = 0;
+
+    const lines = (input.len + 1) / 4;
+    const remaining = lines % unroll_factor;
+    var i: usize = 0;
+    while (i < remaining) : ({
+        i += 1;
+        cursor += 4;
+    }) {
+        const shape_a = @intToEnum(Shape, input[cursor + 0] - 'A');
+        const shape_b = @intToEnum(Shape, input[cursor + 2] - 'X');
+        const index = toIndex(shape_a, shape_b);
+        total_score += lookup_table[index];
+    }
+
+    while (cursor < input.len) : (cursor += 4 * unroll_factor) {
+        comptime var j: usize = 0;
+        inline while (j < unroll_factor) : (j += 1) {
+            const shape_a = @intToEnum(Shape, input[cursor + j * 4 + 0] - 'A');
+            const shape_b = @intToEnum(Shape, input[cursor + j * 4 + 2] - 'X');
+            const index = toIndex(shape_a, shape_b);
+            total_score += lookup_table[index];
+        }
     }
     return total_score;
 }
