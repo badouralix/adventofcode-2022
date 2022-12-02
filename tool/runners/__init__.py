@@ -16,7 +16,7 @@ from tool.runners.php import SubmissionPHP
 from tool.runners.python import SubmissionPy
 from tool.runners.ruby import SubmissionRb
 from tool.runners.rust import SubmissionRs
-from tool.runners.vlang import SubmissionV
+# from tool.runners.vlang import SubmissionV
 from tool.runners.wrapper import SubmissionWrapper
 from tool.runners.zig import SubmissionZig
 from tool.utils import load_subclass
@@ -39,7 +39,7 @@ TOOL_BY_LANGUAGE = {
     "rs": "cargo",
     "sh": "bash",
     "jl": "julia",
-    "v": "v",
+    # "v": "v",
     "zig": "zig",
 }
 LANGUAGES = list(TOOL_BY_LANGUAGE.keys())
@@ -82,7 +82,7 @@ def load_submission_runnable(path, language):
         return SubmissionJulia(path)
     # elif language == "nim":
     #     return SubmissionNim(path)
-    elif language == "v":
-        return SubmissionV(path)
+    # elif language == "v":
+    #     return SubmissionV(path)
     elif language == "zig":
         return SubmissionZig(path)
