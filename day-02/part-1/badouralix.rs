@@ -50,7 +50,6 @@ fn is_win(opponent: HandShape, player: HandShape) -> bool {
         HandShape::Rock => player == HandShape::Paper,
         HandShape::Paper => player == HandShape::Scissors,
         HandShape::Scissors => player == HandShape::Rock,
-        _ => todo!(),
     }
 }
 
