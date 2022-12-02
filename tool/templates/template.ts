@@ -1,6 +1,6 @@
 /**
- * @param {string} s puzzle input in string format
- * @returns {string} solution flag
+ * @param s puzzle input in string format
+ * @returns solution flag
  */
 const run = (s: string): unknown => {
   // Your code goes here
