@@ -17,6 +17,7 @@ class RemicalixteSubmission(SubmissionPy):
                 elf = 0
                 continue
             elf += int(calorie)
+        elves.append(elf)
         elves.sort(reverse=True)
         return sum(elves[:3])
 
