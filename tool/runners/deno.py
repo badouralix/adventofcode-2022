@@ -11,7 +11,7 @@ class SubmissionDeno(SubmissionWrapper):
 
     def exec(self, input):
         try:
-            return subprocess.check_output(["deno", "run", self.file, input]).decode()
+            return subprocess.check_output(["deno", "run", "--allow-hrtime", self.file, input]).decode()
         except OSError as e:
             if e.errno == errno.ENOENT:
                 # executable not found
