@@ -3,16 +3,6 @@ const std = @import("std");
 var a: std.mem.Allocator = undefined;
 const stdout = std.io.getStdOut().writer(); //prepare stdout to write in
 
-fn my_score(them: u8, choice: u8) u8 {
-    switch (choice) {
-        0 => return ((them + 2) % 3) + 1,
-        1 => return them + 1,
-        2 => return ((them + 1) % 3) + 1,
-        else => @panic("invalid input"),
-        
-    }
-}
-
 fn run(input: [:0]const u8) u64 {
     var score : u64 = 0;
     var cursor : usize = 0;
@@ -21,7 +11,7 @@ fn run(input: [:0]const u8) u64 {
         var choice = input[cursor + 2] - 'X';
         cursor += 4;
         score += @intCast(u64, choice * 3); 
-        score += my_score(them, choice);
+        score += @intCast(u64, (them + (choice + 2)) % 3 + 1);
     }
     return score;
 }
