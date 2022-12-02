@@ -7,8 +7,8 @@ const run = (s: string): unknown => {
   return s;
 };
 
-const start = Date.now();
+const start = performance.now();
 const answer = run(Deno.args[0]);
 
-console.log("_duration:" + (Date.now() - start).toString());
+console.log(`_duration:${performance.now() - start}`);
 console.log(answer);
