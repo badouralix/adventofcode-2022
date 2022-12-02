@@ -21,6 +21,21 @@ const run = (s: string): unknown => {
   return calories[0] + calories[1] + calories[2];
 };
 
+run(`1000
+2000
+3000
+
+4000
+
+5000
+6000
+
+7000
+8000
+9000
+
+10000`)
+
 const start = performance.now();
 const answer = run(Deno.args[0]);
 

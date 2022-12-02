@@ -20,6 +20,21 @@ const run = (s: string): unknown => {
   return Math.max(...calories);
 };
 
+run(`1000
+2000
+3000
+
+4000
+
+5000
+6000
+
+7000
+8000
+9000
+
+10000`)
+
 const start = performance.now();
 const answer = run(Deno.args[0]);
 
