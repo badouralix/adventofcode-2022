@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iostream>
 #include <span>
+#include <sstream>
 #include <string>
 #include <vector>
 
