@@ -12,11 +12,10 @@ fn run(input: &str) -> u32 {
         let mut right = BitSet::<1>::default();
         let l = line.len();
         for i in 0..(l / 2) {
-            left.set((line[i] - b'A') as usize);
-            right.set((line[i + (l / 2)] - b'A') as usize);
+            left.set(line[i] - b'A');
+            right.set(line[i + (l / 2)] - b'A');
         }
-        let shared = (left & right).leading_zeros();
-        // dbg!((shared as u8 + b'A') as char);
+        let shared = (left & right).first_set();
         res += priority(shared);
     }
     res
