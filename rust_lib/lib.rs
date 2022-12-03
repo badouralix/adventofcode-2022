@@ -1,5 +1,6 @@
 use std::{fmt::Display, time::Instant, env::args};
 
+pub mod enizor;
 pub mod paullgdc;
 
 pub fn run<R: Display, F: FnOnce(&str) -> R>(f: F){
