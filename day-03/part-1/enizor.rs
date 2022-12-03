@@ -1,19 +1,24 @@
 use aoc::enizor::BitSet;
+
 fn main() {
     aoc::run(run)
 }
+
+type Compartment = BitSet<1>;
 
 fn run(input: &str) -> u32 {
     // Your code goes here
     let bytes = input.as_bytes();
     let mut res = 0;
     for line in bytes.split(|&b| b == b'\n') {
-        let mut left = BitSet::<1>::default();
-        let mut right = BitSet::<1>::default();
+        let mut left = Compartment::default();
+        let mut right = Compartment::default();
         let l = line.len();
-        for i in 0..(l / 2) {
-            left.set(line[i] - b'A');
-            right.set(line[i + (l / 2)] - b'A');
+        for c in &line[..l / 2] {
+            left.set(c - b'A');
+        }
+        for c in &line[l / 2..] {
+            right.set(c - b'A');
         }
         let shared = (left & right).first_set();
         res += priority(shared);
