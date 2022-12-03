@@ -1,24 +1,29 @@
 use aoc::enizor::BitSet;
+
 fn main() {
     aoc::run(run)
 }
+
+type RuckSack = BitSet<1>;
 
 fn run(input: &str) -> u32 {
     // Your code goes here
     let bytes = input.as_bytes();
     let mut res = 0;
-    let mut group = [BitSet::<1>::default(); 3];
     let mut group_count = 0;
+    let mut group = RuckSack::ones();
+    let mut current_elve = RuckSack::default();
     for (i, &c) in bytes.iter().enumerate() {
         if c != b'\n' {
-            group[group_count].set(c - b'A');
+            current_elve.set(c - b'A');
         }
         if c == b'\n' || i == bytes.len() - 1 {
             group_count = (group_count + 1) % 3;
+            group &= current_elve;
+            current_elve = RuckSack::default();
             if group_count == 0 {
-                let badge = (group[0] & group[1] & group[2]).first_set();
-                group = [BitSet::<1>::default(); 3];
-
+                let badge = group.first_set();
+                group = RuckSack::ones();
                 res += priority(badge);
             }
         }

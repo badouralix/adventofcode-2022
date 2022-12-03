@@ -16,6 +16,11 @@ impl<const N: usize> BitSet<N> {
         self.bits[p / 64] |= 1 << (p % 64)
     }
 
+    pub fn reset(&mut self, n: impl Into<usize>) {
+        let p = n.into();
+        self.bits[p / 64] &= !(1 << (p % 64))
+    }
+
     pub fn count_ones(&self) -> u32 {
         let mut res = 0;
         for x in self.bits {
@@ -34,6 +39,10 @@ impl<const N: usize> BitSet<N> {
             res += 64;
         }
         res
+    }
+
+    pub fn ones() -> Self {
+        Self { bits: [!0; N] }
     }
 }
 
@@ -80,5 +89,23 @@ impl<const N: usize> BitOrAssign for BitSet<N> {
         for i in 0..N {
             self.bits[i] |= rhs.bits[i];
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn run_test() {
+        let mut set = BitSet::<3>::default();
+        set.set(75u8);
+        assert_eq!(set.first_set(), 75);
+        set.set(36u8);
+        assert_eq!(set.first_set(), 36);
+        set.set(141u8);
+        assert_eq!(set.first_set(), 36);
+        set.reset(36u8);
+        assert_eq!(set.first_set(), 75);
     }
 }
