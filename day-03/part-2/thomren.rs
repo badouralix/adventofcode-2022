@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 
 fn main() {
     aoc::run(run)
@@ -8,6 +7,8 @@ const GROUP_SIZE: usize = 3;
 
 fn run(input: &str) -> usize {
     let lines = input.lines().collect::<Vec<&str>>();
+    assert!(lines.len() % GROUP_SIZE == 0);
+
     let mut res = 0;
     for i in 0..(lines.len() / GROUP_SIZE) {
         let group_lines = &lines[(GROUP_SIZE * i)..(GROUP_SIZE * (i + 1))];
@@ -20,14 +21,25 @@ fn run(input: &str) -> usize {
 fn find_group_item(lines: &[&str]) -> u8 {
     let common_items = lines
         .into_iter()
-        .map(|line| get_unique_chars(*line))
-        .reduce(|a, x| a.intersection(&x).cloned().collect())
+        .map(|&line| get_bytes_set(line))
+        .reduce(|a, x| a & x)
         .unwrap();
-    common_items.into_iter().next().unwrap()
+    ilog(common_items) as u8
 }
 
-fn get_unique_chars(line: &str) -> HashSet<u8> {
-    line.as_bytes().into_iter().map(|x| *x).collect::<HashSet<u8>>()
+/// Create a set of bytes represented by a 128-bit mask from a string.
+/// Only characters up to \u{80} are supported.
+fn get_bytes_set(line: &str) -> u128 {
+    let mut res = 0;
+    for &b in line.as_bytes() {
+        res |= 1 << b;
+    }
+    res
+}
+
+/// Base 2 logarithm of a u128
+fn ilog(x: u128) -> u32 {
+  x.next_power_of_two().trailing_zeros()
 }
 
 fn priority(c: u8) -> usize {
