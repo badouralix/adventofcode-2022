@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"time"
 )
@@ -20,7 +20,7 @@ func main() {
 	var err error
 	if len(os.Args) > 1 {
 		// Read input from file for local debugging
-		input, err = ioutil.ReadFile(os.Args[1])
+		input, err = os.ReadFile(os.Args[1])
 		if err != nil {
 			panic(err)
 		}
@@ -28,7 +28,7 @@ func main() {
 		input = input[:len(input)-1]
 	} else {
 		// Read input from stdin
-		input, err = ioutil.ReadAll(os.Stdin)
+		input, err = io.ReadAll(os.Stdin)
 		if err != nil {
 			panic(err)
 		}
