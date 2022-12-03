@@ -9,7 +9,7 @@ edition="2021"
 
 [lib]
 name = "aoc"
-path = "./rust_lib/lib.rs"
+path = "./lib/rust/lib.rs"
 
 [[bin]]
 name = "day-01-part-1-badouralix"
@@ -121,3 +121,11 @@ path = "./day-03/part-1/paullgdc.rs"
 [[bin]]
 name = "day-03-part-2-paullgdc"
 path = "./day-03/part-2/paullgdc.rs"
+
+[[bin]]
+name = "day-03-part-1-jd"
+path = "./day-03/part-1/jd.rs"
+
+[[bin]]
+name = "day-03-part-2-jd"
+path = "./day-03/part-2/jd.rs"

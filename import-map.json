@@ -1,5 +1,5 @@
 {
   "imports": {
-    "@lib/": "./ts_lib/"
+    "@lib/": "./lib/ts/"
   }
 }
