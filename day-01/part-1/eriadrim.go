@@ -7,9 +7,26 @@ import (
 	"time"
 )
 
-func run(s string) interface{} {
-	// Your code goes here
-	return struct{}{}
+func run(s []byte) int32 {
+	var current, currentSum, res int32
+	for _, r := range s {
+		switch r {
+		case '\n':
+			if current == 0 {
+				if res < currentSum {
+					res = currentSum
+				}
+				currentSum = 0
+				continue
+			}
+			currentSum += current
+			current = 0
+		default:
+			current = current*10 + int32(r-'0')
+		}
+	}
+
+	return res
 }
 
 func main() {
@@ -36,7 +53,7 @@ func main() {
 
 	// Start resolution
 	start := time.Now()
-	result := run(string(input))
+	result := run(input)
 
 	// Print result
 	fmt.Printf("_duration:%f\n", time.Since(start).Seconds()*1000)

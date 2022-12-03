@@ -2,14 +2,25 @@ package main
 
 import (
 	"fmt"
-	"io"
+	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 )
 
-func run(s string) interface{} {
-	// Your code goes here
-	return struct{}{}
+func roundScore(a, b int) int {
+	r := ((b - a + 3) % 3 + 1) % 3
+	return (b + 1) + 3 * r
+}
+
+func run(s string) int {
+	score := 0
+	for _, round := range strings.Split(s, "\n") {
+		a := int(round[0] - 'A')
+		b := int(round[2] - 'X')
+		score += roundScore(a, b)
+	}
+	return score
 }
 
 func main() {
@@ -20,7 +31,7 @@ func main() {
 	var err error
 	if len(os.Args) > 1 {
 		// Read input from file for local debugging
-		input, err = os.ReadFile(os.Args[1])
+		input, err = ioutil.ReadFile(os.Args[1])
 		if err != nil {
 			panic(err)
 		}
@@ -28,7 +39,7 @@ func main() {
 		input = input[:len(input)-1]
 	} else {
 		// Read input from stdin
-		input, err = io.ReadAll(os.Stdin)
+		input, err = ioutil.ReadAll(os.Stdin)
 		if err != nil {
 			panic(err)
 		}

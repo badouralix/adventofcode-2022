@@ -2,14 +2,38 @@ package main
 
 import (
 	"fmt"
-	"io"
+	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 )
 
-func run(s string) interface{} {
-	// Your code goes here
-	return struct{}{}
+func intersect(a, b string) int {
+	for i := 0; i < len(a); i++ {
+		for j := 0; j < len(b); j++ {
+			if a[i] == b[j] {
+				return int(a[i])
+			}
+		}
+	}
+	return 0
+}
+
+func priority(sack string) int {
+	n := len(sack) / 2
+	item := intersect(sack[:n], sack[n:])
+	if item >= 'a' && item <= 'z' {
+		return item - 'a' + 1
+	}
+	return item - 'A' + 27
+}
+
+func run(s string) int {
+	sum := 0
+	for _, sack := range strings.Fields(s) {
+		sum += priority(sack)
+	}
+	return sum
 }
 
 func main() {
@@ -20,7 +44,7 @@ func main() {
 	var err error
 	if len(os.Args) > 1 {
 		// Read input from file for local debugging
-		input, err = os.ReadFile(os.Args[1])
+		input, err = ioutil.ReadFile(os.Args[1])
 		if err != nil {
 			panic(err)
 		}
@@ -28,7 +52,7 @@ func main() {
 		input = input[:len(input)-1]
 	} else {
 		// Read input from stdin
-		input, err = io.ReadAll(os.Stdin)
+		input, err = ioutil.ReadAll(os.Stdin)
 		if err != nil {
 			panic(err)
 		}
