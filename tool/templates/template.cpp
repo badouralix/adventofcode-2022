@@ -1,10 +1,14 @@
 #include <chrono>
 #include <iostream>
 #include <span>
+#include <sstream>
 #include <string>
 
 std::string Run(const std::string& input) {
   // Your code goes here
+  std::istringstream iss(input);
+  for (std::string line; std::getline(iss, line);) {
+  }
   return "";
 }
 
