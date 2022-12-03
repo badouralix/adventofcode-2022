@@ -3,69 +3,27 @@ fn main() {
 }
 
 fn run(input: &str) -> isize {
-    let mut score = 0;
-    for line in input.split('\n') {
-        let (left, right) = line.split_once(' ').unwrap();
-        let (left, right) = (
-            Janken::parse_left(left).unwrap(),
-            Janken::parse_right(right).unwrap(),
-        );
-        match right.match_result(&left) {
-            MatchRes::Win => score += right.score() + 6,
-            MatchRes::Draw => score += right.score() + 3,
-            MatchRes::Loss => score += right.score(),
-        }
+    const N: usize = 4;
+
+    let mut total = 0;
+    let mut chunks = input.as_bytes().chunks_exact(N);
+    for round in &mut chunks {
+        let round: [u8; N] = unsafe { round.try_into().unwrap_unchecked() };
+        total += score(round) as isize;
     }
-    score as isize
+    let mut last_round = [0; 4];
+    last_round[..chunks.remainder().len()].copy_from_slice(chunks.remainder());
+    total += score(last_round) as isize;
+
+    total
 }
 
-enum Janken {
-    Rock,
-    Paper,
-    Scissors,
-}
+const MATCHUP_SCORE: [u8; 5] = [6, 0, 3, 6, 0];
 
-impl Janken {
-    fn parse_left(s: &str) -> Option<Self> {
-        Some(match s {
-            "A" => Self::Rock,
-            "B" => Self::Paper,
-            "C" => Self::Scissors,
-            _ => return None,
-        })
-    }
-
-    fn parse_right(s: &str) -> Option<Self> {
-        Some(match s {
-            "X" => Self::Rock,
-            "Y" => Self::Paper,
-            "Z" => Self::Scissors,
-            _ => return None,
-        })
-    }
-
-    fn score(&self) -> i32 {
-        match self {
-            Self::Rock => 1,
-            Self::Paper => 2,
-            Self::Scissors => 3,
-        }
-    }
-
-    fn match_result(&self, other: &Self) -> MatchRes {
-        match ((self.score() - 1) - (other.score() - 1)).rem_euclid(3) {
-            0 => MatchRes::Draw,
-            1 => MatchRes::Win,
-            2 => MatchRes::Loss,
-            _ => unimplemented!(),
-        }
-    }
-}
-
-enum MatchRes {
-    Win,
-    Draw,
-    Loss,
+fn score(round: [u8; 4]) -> u8 {
+    let result_score =
+        unsafe { MATCHUP_SCORE.get_unchecked((round[2] - b'X' + 2 - (round[0] - b'A')) as usize) };
+    result_score + (round[2] - b'X') + 1
 }
 
 #[cfg(test)]
