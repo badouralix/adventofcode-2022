@@ -3,6 +3,7 @@
 #include <iostream>
 #include <ranges>
 #include <span>
+#include <sstream>
 #include <string>
 #include <unordered_set>
 #include <vector>
