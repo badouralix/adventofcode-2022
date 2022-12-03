@@ -6,12 +6,14 @@ pub struct BitSet<const N: usize> {
 }
 
 impl<const N: usize> BitSet<N> {
-    pub fn test(&self, n: usize) -> bool {
-        self.bits[n / 64] & (1 << (63 - (n % 64))) > 0
+    pub fn test(&self, n: impl Into<usize>) -> bool {
+        let p = n.into();
+        self.bits[p / 64] & (1 << (p % 64)) > 0
     }
 
-    pub fn set(&mut self, n: usize) {
-        self.bits[n / 64] |= 1 << (63 - (n % 64))
+    pub fn set(&mut self, n: impl Into<usize>) {
+        let p = n.into();
+        self.bits[p / 64] |= 1 << (p % 64)
     }
 
     pub fn count_ones(&self) -> u32 {
@@ -22,23 +24,11 @@ impl<const N: usize> BitSet<N> {
         res
     }
 
-    pub fn leading_zeros(&self) -> u32 {
-        let mut res = 0;
-        for x in self.bits {
-            if x > 0 {
-                res += x.leading_zeros();
-                return res;
-            }
-            res += 64;
-        }
-        res
-    }
-
     pub fn first_set(&self) -> u32 {
         let mut res = 0;
         for x in self.bits {
             if x > 0 {
-                res += x.leading_zeros();
+                res += x.trailing_zeros();
                 return res;
             }
             res += 64;

@@ -11,12 +11,12 @@ fn run(input: &str) -> u32 {
     let mut group_count = 0;
     for (i, &c) in bytes.iter().enumerate() {
         if c != b'\n' {
-            group[group_count].set((c - b'A') as usize);
+            group[group_count].set(c - b'A');
         }
         if c == b'\n' || i == bytes.len() - 1 {
             group_count = (group_count + 1) % 3;
             if group_count == 0 {
-                let badge = (group[0] & group[1] & group[2]).leading_zeros();
+                let badge = (group[0] & group[1] & group[2]).first_set();
                 group = [BitSet::<1>::default(); 3];
 
                 res += priority(badge);
