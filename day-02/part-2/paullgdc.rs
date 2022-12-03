@@ -3,76 +3,24 @@ fn main() {
 }
 
 fn run(input: &str) -> isize {
-    let mut score = 0;
-    for line in input.split('\n') {
-        let (left, right) = line.split_once(' ').unwrap();
-        let (left, right) = (
-            Janken::parse_left(left).unwrap(),
-            MatchRes::parse(right).unwrap(),
-        );
-        let match_score = right.other_player_score(&left);
-        score += match_score
-            + match right {
-                MatchRes::Win => 6,
-                MatchRes::Draw => 3,
-                MatchRes::Loss => 0,
-            }
+    const N: usize = 4;
+
+    let mut total = 0;
+    let mut chunks = input.as_bytes().chunks_exact(N);
+    for round in &mut chunks {
+        let round: [u8; N] = unsafe { round.try_into().unwrap_unchecked() };
+        total += score(round) as isize;
     }
-    score as isize
+    let mut last_round = [0; 4];
+    last_round[..chunks.remainder().len()].copy_from_slice(chunks.remainder());
+    total += score(last_round) as isize;
+
+    total
 }
 
-enum Janken {
-    Rock,
-    Paper,
-    Scissors,
-}
 
-impl Janken {
-    fn parse_left(s: &str) -> Option<Self> {
-        Some(match s {
-            "A" => Self::Rock,
-            "B" => Self::Paper,
-            "C" => Self::Scissors,
-            _ => return None,
-        })
-    }
-
-    fn score(&self) -> i32 {
-        match self {
-            Self::Rock => 1,
-            Self::Paper => 2,
-            Self::Scissors => 3,
-        }
-    }
-}
-
-enum MatchRes {
-    Win,
-    Draw,
-    Loss,
-}
-
-impl MatchRes {
-    fn parse(s: &str) -> Option<Self> {
-        Some(match s {
-            "X" => Self::Loss,
-            "Y" => Self::Draw,
-            "Z" => Self::Win,
-            _ => return None,
-        })
-    }
-
-    fn result(&self) -> i32 {
-        match self {
-            Self::Draw => 0,
-            Self::Win => 1,
-            Self::Loss => 2,
-        }
-    }
-
-    fn other_player_score(&self, player: &Janken) -> i32 {
-        (self.result() + (player.score() - 1)).rem_euclid(3) + 1
-    }
+fn score(round: [u8; 4]) -> u8 {
+    (round[0] - b'A' + (round[2] - b'X') + 2) % 3 + 1 + (round[2] - b'X') * 3
 }
 
 #[cfg(test)]
