@@ -23,9 +23,7 @@ fn run(input: &str) -> isize {
             Some((min, max)) => (min.parse().unwrap(), max.parse().unwrap()),
         };
 
-        if (left_min <= right_max && right_min <= left_max)
-            || (right_min <= left_max && left_min <= right_max)
-        {
+        if left_min <= right_max && right_min <= left_max {
             result += 1;
         }
     }
