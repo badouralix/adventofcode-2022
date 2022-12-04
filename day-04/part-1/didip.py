@@ -3,9 +3,9 @@ from tool.runners.python import SubmissionPy
 
 class DidipSubmission(SubmissionPy):
     def overlaps(self, left, right):
-        if int(left[0]) > int(right[0]):
+        if left[0] > right[0]:
             left, right = right, left
-        return int(left[1]) >= int(right[1])
+        return left[1] >= right[1] or left[0] == right[0]
 
     def run(self, s):
         """
@@ -16,8 +16,8 @@ class DidipSubmission(SubmissionPy):
         score = 0
         for entry in s.splitlines():
             left, right = entry.split(',')
-            left = left.split('-')
-            right = right.split('-')
+            left = list(map(int, left.split('-')))
+            right = list(map(int, right.split('-')))
 
             score += self.overlaps(left, right)
         return score
