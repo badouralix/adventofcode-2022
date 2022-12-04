@@ -9,9 +9,7 @@ fn run(input: &str) -> usize {
 fn does_overlap(line: &str) -> usize {
     let ((a, b), (c, d)) = parse_ranges(line);
 
-    if c <= a && d >= a {
-        1
-    } else if a <= c && b >= c {
+    if (c <= a && d >= a) || (a <= c && b >= c) {
         1
     } else {
         0
