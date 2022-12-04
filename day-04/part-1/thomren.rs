@@ -25,7 +25,7 @@ impl FromStr for AssignementPair {
     type Err = Box<dyn Error>;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut it = s.as_bytes().into_iter();
+        let mut it = s.as_bytes().iter();
         let first_min = atoi(it.by_ref());
         let first_max = atoi(it.by_ref());
         let second_min= atoi(it.by_ref());
@@ -35,7 +35,7 @@ impl FromStr for AssignementPair {
             Assignement(first_min, first_max), 
             Assignement(second_min, second_max)
         );
-        return Ok(res)
+        Ok(res)
     }
 }
 

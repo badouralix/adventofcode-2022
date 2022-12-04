@@ -17,7 +17,7 @@ impl RuckSack {
 
     unsafe fn add(&mut self, item: u8) {
         match item {
-            b'a'..=b'z' => self.0 |= 1 << item - b'a',
+            b'a'..=b'z' => self.0 |= 1 << (item - b'a'),
             b'A'..=b'Z' => self.0 |= 1 << (item - b'A' + 26),
             _ => unreachable_unchecked(),
         }
@@ -34,7 +34,7 @@ impl RuckSack {
 
 fn run(input: &str) -> u32 {
     let mut priority = 0;
-    let mut lines  = input.split('\n');
+    let mut lines = input.split('\n');
     (|| -> Option<()> {
         loop {
             let (l1, l2, l3) = (lines.next()?, lines.next()?, lines.next()?);

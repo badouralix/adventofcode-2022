@@ -17,7 +17,7 @@ impl RuckSack {
 
     unsafe fn add(&mut self, item: u8) {
         match item {
-            b'a'..=b'z' => self.0 |= 1 << item - b'a',
+            b'a'..=b'z' => self.0 |= 1 << (item - b'a'),
             b'A'..=b'Z' => self.0 |= 1 << (item - b'A' + 26),
             _ => unreachable_unchecked(),
         }
@@ -36,7 +36,7 @@ fn run(input: &str) -> u32 {
     let mut priority = 0;
     for line in input.split('\n') {
         let line = line.as_bytes();
-        
+
         unsafe {
             let left = RuckSack::from_items(&line[..line.len() / 2]);
             let right = RuckSack::from_items(&line[line.len() / 2..]);

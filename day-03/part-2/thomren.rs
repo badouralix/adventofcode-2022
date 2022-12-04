@@ -1,4 +1,3 @@
-
 fn main() {
     aoc::run(run)
 }
@@ -20,7 +19,7 @@ fn run(input: &str) -> usize {
 
 fn find_group_item(lines: &[&str]) -> u8 {
     let common_items = lines
-        .into_iter()
+        .iter()
         .map(|&line| get_bytes_set(line))
         .reduce(|a, x| a & x)
         .unwrap();
