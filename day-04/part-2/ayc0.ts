@@ -22,20 +22,8 @@ const run = (s: string): unknown => {
     endA = parseInt(match[2], 10);
     startB = parseInt(match[3], 10);
     endB = parseInt(match[4], 10);
-
-    if (startB <= endA && endA <= endB) {
-      end = true;
-    } else if (startA <= endB && endB <= endA) {
-      end = true;
-    }
-
-    if (startB <= startA && startA <= endB) {
-      start = true;
-    } else if (startA <= startB && startB <= endA) {
-      start = true;
-    }
-
-    if (start !== false && end !== false) {
+    
+    if ((startA <= startB && startB <= endA) || (startB <= startA && startA <= endB)) {
       score++;
     }
   }
