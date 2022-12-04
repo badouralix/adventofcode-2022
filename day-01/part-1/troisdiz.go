@@ -21,6 +21,7 @@ func parseData(input string) []int {
 			currentSum = 0
 		}
 	}
+	result = append(result, currentSum)
 	return result
 }
 
