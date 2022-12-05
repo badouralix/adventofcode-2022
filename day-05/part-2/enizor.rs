@@ -27,7 +27,7 @@ fn run(input: &str) -> String {
     let mut lines = input.lines();
     let mut stacks = Vec::with_capacity(16);
     for line in &mut lines {
-        if line.len() == 0 {
+        if line.is_empty() {
             break;
         }
         let chars = line.as_bytes();
