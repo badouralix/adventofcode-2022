@@ -25,6 +25,18 @@ where
     }
 }
 
+#[inline(always)]
+pub fn get_mut_2<T>(slice: &mut [T], i: usize, j: usize) -> Option<(&mut T, &mut T)> {
+    if i == j || i  >= slice.len() || j >= slice.len(){
+        return None;
+    }
+    unsafe {
+        let i = &mut *slice.as_mut_ptr().add(i);
+        let j = &mut *slice.as_mut_ptr().add(j);
+        Some((i, j))
+    }
+}
+
 pub mod tokenize {
     pub struct Tokenizer<'a> {
         input: &'a [u8],
@@ -40,7 +52,17 @@ pub mod tokenize {
             &self.input[self.pos..]
         }
 
-        pub fn next_u8(&mut self) -> Option<u8> {
+        pub fn next_ascii_char(&mut self) -> Option<u8> {
+            let b = self.next_nth_byte(0)?;
+            self.advance(1);
+            if b.is_ascii() {
+                Some(b)
+            } else {
+                None
+            }
+        }
+
+        pub fn parse_next_decimal_u8(&mut self) -> Option<u8> {
             let mut res = 0;
             let mut skip = 0;
             for (i, b) in self.input[self.pos..].into_iter().enumerate() {
@@ -62,8 +84,12 @@ pub mod tokenize {
             Some(res)
         }
 
+        pub fn next_nth_byte(&self, n: usize) -> Option<u8> {
+            self.input.get(self.pos + n).copied()
+        }
+
         pub fn eat_chars(&mut self, chars: &[u8]) -> Option<()> {
-            if &self.input[self.pos..chars.len()] == chars {
+            if &self.input[self.pos..][..chars.len()] == chars {
                 self.pos += chars.len();
                 Some(())
             } else {
@@ -72,12 +98,16 @@ pub mod tokenize {
         }
 
         pub fn eat_byte(&mut self, b: u8) -> Option<()> {
-            if *self.input.get(self.pos)? == b {
+            if self.next_nth_byte(0)? == b {
                 self.pos += 1;
                 Some(())
             } else {
                 None
             }
+        }
+
+        pub fn advance(&mut self, n: usize) {
+            self.pos += n;
         }
     }
 }
