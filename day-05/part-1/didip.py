@@ -1,7 +1,7 @@
 from tool.runners.python import SubmissionPy
 import re
 
-class DidipSubmission:
+class DidipSubmission(SubmissionPy):
     def run(self, s):
         """
         :param s: input in string format
@@ -15,20 +15,15 @@ class DidipSubmission:
         for line in initial.splitlines():
             if line[1] != '1':
                 for i in range(n_stacks):
-                    if line[4 * i + 1] != ' ':
+                    if len(line) > 4 * i + 1 and line[4 * i + 1] != ' ':
                         stacks[i] = [line[4 * i + 1]] + stacks[i]
 
-
         for order in orders.splitlines():
-            m = re.match(r'move (?P<amount>\d+) from (?P<stack_from>\d) to (?P<stack_to>\d)', order)
-            i_from = int(m.group('stack_from')) - 1
-            i_to = int(m.group('stack_to')) - 1
-            amount = int(m.group('amount'))
+            order_inst = order.split(' ')
+            i_from, i_to, amount = int(order_inst[3]) - 1, int(order_inst[5]) - 1, int(order_inst[1])
 
             stacks[i_to].extend(stacks[i_from][-amount:][::-1])
             stacks[i_from] = stacks[i_from][:-amount]
-
-
 
         return ''.join([stacks[i][-1] for i in range(n_stacks)])
 
