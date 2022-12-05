@@ -65,7 +65,7 @@ pub mod tokenize {
         pub fn parse_next_decimal_u8(&mut self) -> Option<u8> {
             let mut res = 0;
             let mut skip = 0;
-            for (i, b) in self.input[self.pos..].into_iter().enumerate() {
+            for (i, b) in self.input[self.pos..].iter().enumerate() {
                 match b {
                     b'0'..=b'9' => {
                         res *= 10;

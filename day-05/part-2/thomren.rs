@@ -56,7 +56,7 @@ impl FromStr for Instruction {
     }
 }
 
-fn get_stack_tops_as_str(stacks: &Vec<Vec<u8>>) -> Result<String, Utf8Error> {
+fn get_stack_tops_as_str(stacks: &[Vec<u8>]) -> Result<String, Utf8Error> {
     let res: Vec<u8> = stacks.iter().filter_map(|s| s.last().copied()).collect();
     Ok(std::str::from_utf8(&res)?.to_string())
 }

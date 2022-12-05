@@ -9,11 +9,7 @@ fn run(input: &str) -> usize {
 fn full_overlap(line: &str) -> usize {
     let ((a, b), (c, d)) = parse_ranges(line);
 
-    if (a >= c && b <= d) || (a <= c && b >= d) {
-        1
-    } else {
-        0
-    }
+    usize::from((a >= c && b <= d) || (a <= c && b >= d))
 }
 
 fn parse_ranges(ranges: &str) -> ((usize, usize), (usize, usize)) {
