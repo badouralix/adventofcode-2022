@@ -79,10 +79,7 @@ fn parse_move_instructions(tokenizer: &mut Tokenizer) -> Vec<Instruction> {
 
 fn process_instruction(stacks: &mut [Vec<u8>; N], instruction: Instruction) {
     let (from, to) = get_mut_2(stacks, instruction.from as usize, instruction.to as usize).unwrap();
-    for _ in 0..instruction.quantity {
-        let e = from.pop().unwrap();
-        to.push(e);
-    }
+    to.extend(from.drain(from.len() - instruction.quantity as usize..).rev())
 }
 
 fn run(input: &str) -> String {
