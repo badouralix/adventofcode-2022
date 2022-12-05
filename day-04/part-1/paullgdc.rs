@@ -7,9 +7,9 @@ fn main() {
 }
 
 fn parse_range(range: &mut Tokenizer) -> Option<RangeInclusive<u8>> {
-    let start = range.next_u8()?;
+    let start = range.parse_next_decimal_u8()?;
     range.eat_byte(b'-')?;
-    let end = range.next_u8()?;
+    let end = range.parse_next_decimal_u8()?;
 
     Some(RangeInclusive::new(start, end))
 }
