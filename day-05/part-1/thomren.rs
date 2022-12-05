@@ -23,13 +23,14 @@ fn run(input: &str) -> String {
 
 fn parse_stacks(s: &str) -> Vec<Vec<u8>> {
     let stack_lines = s.lines().collect::<Vec<&str>>();
-    let nb_stacks = (stack_lines[stack_lines.len() - 1].len() + 1) / 4;
+    let nb_stacks = (stack_lines[stack_lines.len() - 1].len() + 2) / 4;
     let mut stacks = vec![Vec::new(); nb_stacks];
     for line in stack_lines.into_iter().rev().skip(1) {
         let bytes = line.as_bytes();
-        for (k, i) in (1..bytes.len()).step_by(4).enumerate() {
-            if bytes[i] != b' ' {
-                stacks[k].push(bytes[i]);
+        for (k, i) in (1..(4 * stacks.len())).step_by(4).enumerate() {
+            match bytes.get(i) {
+                Some(&b) if b != b' ' => stacks[k].push(b),
+                _ => {}
             }
         }
     }
