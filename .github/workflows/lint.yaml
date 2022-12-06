@@ -16,6 +16,7 @@ jobs:
       with:
         name: clippy-summary
         token: ${{ secrets.GITHUB_TOKEN }}
+        args: -- --deny warnings
   markdown-lint:
     name: markdown-lint
     runs-on: ubuntu-latest
