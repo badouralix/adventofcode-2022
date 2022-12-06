@@ -10,7 +10,7 @@ fn parse_stack(tokenizer: &mut Tokenizer) -> [Vec<u8>; N] {
     const EMPTY_VEC: Vec<u8> = Vec::new();
     let mut stacks = [EMPTY_VEC; N];
     'parse_stack: loop {
-        for i in 0..N {
+        for stack in stacks.iter_mut() {
             if tokenizer
                 .next_nth_byte(1)
                 .map(|b| u8::is_ascii_digit(&b))
@@ -20,7 +20,7 @@ fn parse_stack(tokenizer: &mut Tokenizer) -> [Vec<u8>; N] {
             }
             if tokenizer.next_nth_byte(0) == Some(b'[') {
                 tokenizer.eat_byte(b'[');
-                stacks[i].push(tokenizer.next_ascii_char().unwrap());
+                stack.push(tokenizer.next_ascii_char().unwrap());
                 tokenizer.eat_byte(b']');
             } else {
                 tokenizer.advance(3);
@@ -68,7 +68,7 @@ fn parse_move_instructions(tokenizer: &mut Tokenizer) -> Vec<Instruction> {
         instructions.push(Instruction {
             from,
             to,
-            quantity: quantity,
+            quantity,
         });
         if tokenizer.eat_byte(b'\n').is_none() {
             break;
