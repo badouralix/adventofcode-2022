@@ -3,7 +3,7 @@ const std = @import("std");
 var a: std.mem.Allocator = undefined;
 const stdout = std.io.getStdOut().writer(); //prepare stdout to write in
 
-const window_size : usize = 4;
+const window_size : usize = 14;
 
 
 fn all_diff(data: [27]u8) bool {
