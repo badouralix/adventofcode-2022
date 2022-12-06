@@ -24,12 +24,12 @@ fn run(input: &str) -> usize {
 }
 
 fn unique(buffer: &[char; 4]) -> bool {
-    return buffer[0] != buffer[1]
+    buffer[0] != buffer[1]
         && buffer[0] != buffer[2]
         && buffer[0] != buffer[3]
         && buffer[1] != buffer[2]
         && buffer[1] != buffer[3]
-        && buffer[2] != buffer[3];
+        && buffer[2] != buffer[3]
 }
 
 #[cfg(test)]
