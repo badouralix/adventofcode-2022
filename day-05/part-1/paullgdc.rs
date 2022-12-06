@@ -64,11 +64,7 @@ fn parse_move_instructions(tokenizer: &mut Tokenizer) -> Vec<Instruction> {
         let from = tokenizer.parse_next_decimal_u8().unwrap() - 1;
         tokenizer.eat_chars(b" to ");
         let to = tokenizer.parse_next_decimal_u8().unwrap() - 1;
-        instructions.push(Instruction {
-            from,
-            to,
-            quantity,
-        });
+        instructions.push(Instruction { from, to, quantity });
         if tokenizer.eat_byte(b'\n').is_none() {
             break;
         }
@@ -78,7 +74,10 @@ fn parse_move_instructions(tokenizer: &mut Tokenizer) -> Vec<Instruction> {
 
 fn process_instruction(stacks: &mut [Vec<u8>; N], instruction: Instruction) {
     let (from, to) = get_mut_2(stacks, instruction.from as usize, instruction.to as usize).unwrap();
-    to.extend(from.drain(from.len() - instruction.quantity as usize..).rev())
+    to.extend(
+        from.drain(from.len() - instruction.quantity as usize..)
+            .rev(),
+    )
 }
 
 fn run(input: &str) -> String {
@@ -89,7 +88,14 @@ fn run(input: &str) -> String {
     for instruction in instructions {
         process_instruction(&mut stacks, instruction);
     }
-    String::from_utf8(stacks.into_iter().take_while(|s| !s.is_empty()).map(|s| *s.last().unwrap()).collect()).unwrap()
+    String::from_utf8(
+        stacks
+            .into_iter()
+            .take_while(|s| !s.is_empty())
+            .map(|s| *s.last().unwrap())
+            .collect(),
+    )
+    .unwrap()
 }
 
 #[cfg(test)]
@@ -99,10 +105,10 @@ mod tests {
     #[test]
     fn run_test() {
         assert_eq!(
-            run("    [D]    
-[N] [C]    
+            run("    [D]
+[N] [C]
 [Z] [M] [P]
- 1   2   3 
+ 1   2   3
 
 move 1 from 2 to 1
 move 3 from 1 to 3
