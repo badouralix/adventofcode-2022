@@ -1,3 +1,7 @@
 {
-  "deno.enable": true
+  "deno.enable": true,
+  "[plaintext]": {
+    "editor.defaultFormatter": null,
+    "files.trimTrailingWhitespace": false
+  }
 }

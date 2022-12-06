@@ -111,3 +111,23 @@ pub mod tokenize {
         }
     }
 }
+
+pub mod bitset {
+    pub struct Bitset<const N: usize> {
+        elements: [u64; N]
+    }
+
+    impl <const N: usize>Bitset<N> {
+        pub fn empty() -> Self {
+            Self { elements: [0; N] }
+        }
+
+        pub fn add(&mut self, e: u32) {
+            self.elements[(e / u64::BITS) as usize] |= 1 << (e % u64::BITS);
+        }
+
+        pub fn contains(&mut self, e: u32) -> bool {
+            (self.elements[(e / u64::BITS) as usize] & (1 << (e % u64::BITS))) != 0 
+        }
+    }
+}

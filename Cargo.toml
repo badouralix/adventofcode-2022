@@ -68,6 +68,14 @@ name = "day-05-part-2-thomren"
 path = "./day-05/part-2/thomren.rs"
 
 [[bin]]
+name = "day-06-part-1-thomren"
+path = "./day-06/part-1/thomren.rs"
+
+[[bin]]
+name = "day-06-part-2-thomren"
+path = "./day-06/part-2/thomren.rs"
+
+[[bin]]
 name = "day-01-part-1-jd"
 path = "./day-01/part-1/jd.rs"
 
@@ -209,3 +217,35 @@ path = "./day-05/part-1/badouralix.rs"
 [[bin]]
 name = "day-05-part-2-badouralix"
 path = "./day-05/part-2/badouralix.rs"
+
+[[bin]]
+name = "day-06-part-1-paullgdc"
+path = "./day-06/part-1/paullgdc.rs"
+
+[[bin]]
+name = "day-06-part-2-paullgdc"
+path = "./day-06/part-2/paullgdc.rs"
+
+[[bin]]
+name = "day-06-part-1-jd"
+path = "./day-06/part-1/jd.rs"
+
+[[bin]]
+name = "day-06-part-2-jd"
+path = "./day-06/part-2/jd.rs"
+
+[[bin]]
+name = "day-06-part-1-enizor"
+path = "./day-06/part-1/enizor.rs"
+
+[[bin]]
+name = "day-06-part-2-enizor"
+path = "./day-06/part-2/enizor.rs"
+
+[[bin]]
+name = "day-06-part-1-badouralix"
+path = "./day-06/part-1/badouralix.rs"
+
+[[bin]]
+name = "day-06-part-2-badouralix"
+path = "./day-06/part-2/badouralix.rs"
