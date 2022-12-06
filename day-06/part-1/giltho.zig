@@ -3,29 +3,22 @@ const std = @import("std");
 var a: std.mem.Allocator = undefined;
 const stdout = std.io.getStdOut().writer(); //prepare stdout to write in
 
-const window_size : usize = 4;
 
 
-fn all_diff(data: [27]u8) bool {
-    var idx : usize = 0;
-    while (idx < 27) : (idx += 1) {
-        if (data[idx] > 1) {
-            return false;
-        }
-    }
-    return true;
+fn not_all_diff(data: [4]u8) bool {
+    return (data[0] == data[1] or data[0] == data[2] or data[0] == data[3] or
+        data[1] == data[2] or data[1] == data[3] or data[2] == data[3]);
 }
 
 fn run(input: [:0]const u8) usize {
-    var in_window : [27]u8 = .{0} ** 27;
-    var idx : usize = 0;
-    while (idx < window_size) : (idx += 1) {
-        in_window[input[idx] - 'a'] += 1;
-    }
+    var data : [4]u8 = .{undefined} ** 4;
+    std.mem.copy(u8, &data, input[0..4]);
+    var idx : usize = 4;
+    var prev_idx : usize = 0;
     while (true) {
-        if (!all_diff(in_window)) {
-            in_window[input[idx - window_size] - 'a'] -= 1;
-            in_window[input[idx] - 'a'] += 1;
+        if (not_all_diff(data)) {
+            data[prev_idx] = input[idx];
+            prev_idx = (prev_idx + 1) % 4;
             idx += 1;
             continue;
         } else {
