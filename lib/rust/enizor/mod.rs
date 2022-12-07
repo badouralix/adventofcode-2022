@@ -1,5 +1,7 @@
 use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign};
 
+pub mod shell;
+
 #[derive(Clone, Copy)]
 pub struct BitSet<const N: usize> {
     bits: [u64; N],
@@ -15,7 +17,6 @@ impl<const N: usize> BitSet<N> {
         let p = n.into();
         self.bits[p / 64] |= 1 << (p % 64)
     }
-
     pub fn reset(&mut self, n: impl Into<usize>) {
         let p = n.into();
         self.bits[p / 64] &= !(1 << (p % 64))
