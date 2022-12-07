@@ -251,6 +251,14 @@ name = "day-06-part-2-badouralix"
 path = "./day-06/part-2/badouralix.rs"
 
 [[bin]]
+name = "day-07-part-1-giltho"
+path = "./day-07/part-1/giltho.rs"
+
+[[bin]]
+name = "day-07-part-2-giltho"
+path = "./day-07/part-2/giltho.rs"
+
+[[bin]]
 name = "day-07-part-1-enizor"
 path = "./day-07/part-1/enizor.rs"
 
@@ -265,3 +273,4 @@ path = "./day-07/part-1/paullgdc.rs"
 [[bin]]
 name = "day-07-part-2-paullgdc"
 path = "./day-07/part-2/paullgdc.rs"
+
