@@ -1,5 +1,3 @@
-#![feature(iter_advance_by)]
-
 fn main() {
     aoc::run(run)
 }
