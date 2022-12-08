@@ -282,3 +282,11 @@ path = "./day-07/part-1/paullgdc.rs"
 name = "day-07-part-2-paullgdc"
 path = "./day-07/part-2/paullgdc.rs"
 
+
+[[bin]]
+name = "day-07-part-1-jd"
+path = "./day-07/part-1/jd.rs"
+
+[[bin]]
+name = "day-07-part-2-jd"
+path = "./day-07/part-2/jd.rs"
