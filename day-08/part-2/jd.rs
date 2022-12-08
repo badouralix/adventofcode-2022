@@ -49,9 +49,9 @@ fn process(input: &str, size: usize) -> usize {
             }
 
             let mut bottom_score = 0;
-            for i in row + 1..size {
+            for i in map.iter().take(size).skip(row + 1) {
                 bottom_score += 1;
-                if tree <= map[i][col] {
+                if tree <= i[col] {
                     break;
                 }
             }
