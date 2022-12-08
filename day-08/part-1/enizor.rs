@@ -2,70 +2,119 @@ fn main() {
     aoc::run(run)
 }
 
-fn run(input: &str) -> usize {
-    // Your code goes here
-    let width = input.find('\n').unwrap();
-    let mut grid = Vec::with_capacity(input.len());
-    for c in input.as_bytes() {
-        if *c != b'\n' {
-            grid.push(*c);
-        }
-    }
-    let length = grid.len() / width;
-    let mut res = 2 * (width + length) - 4;
-    for j in 1..length - 1 {
-        for i in 1..width - 1 {
-            if is_visible(&grid, i, j, width, length) {
-                res += 1;
-            }
-        }
-    }
-    res
+struct Forest<'a> {
+    bytes: &'a [u8],
+    // beware width contains the aditional \n
+    width: usize,
+    length: usize,
 }
 
-fn is_visible(grid: &[u8], i: usize, j: usize, width: usize, length: usize) -> bool {
-    let v = grid[j * width + i];
-    let mut left = true;
-    for k in 0..i {
-        if grid[j * width + k] >= v {
-            left = false;
-            break;
+impl<'a> Forest<'a> {
+    fn from_str<'b: 'a>(s: &'b str) -> Self {
+        let bytes = s.as_bytes();
+        let width = s.find('\n').unwrap() + 1;
+        let length = (1 + bytes.len()) / (width);
+        Forest {
+            bytes,
+            width,
+            length,
         }
     }
-    if left {
-        return true;
+
+    fn at(&self, i: usize, j: usize) -> u8 {
+        self.bytes[j * self.width + i]
     }
-    let mut right = true;
-    for k in i + 1..width {
-        if grid[j * width + k] >= v {
-            right = false;
-            break;
+
+    fn count_visible(&self) -> usize {
+        let mut visibility = vec![false; self.width * self.length];
+        let mut res = 2 * (self.width - 1 + self.length) - 4;
+        // row visibility
+        for j in 1..self.length - 1 {
+            // skip first & last rows that are always visible up/down
+            // left visibility
+            visibility[j * self.width] = true;
+            let mut max = self.at(0, j);
+            for i in 1..self.width - 2 {
+                // self.width-2 is visible from right
+                let new = self.at(i, j);
+                if new > max {
+                    let visible = &mut visibility[j * self.width + i];
+                    if !*visible {
+                        res += 1;
+                    }
+                    *visible = true;
+                    max = new;
+                }
+                if max == b'9' {
+                    break;
+                }
+            }
+            // right visibility
+            visibility[j * self.width + self.width - 2] = true;
+            let mut max = self.at(self.width - 2, j);
+            for i in (1..self.width - 2).rev() {
+                // 0 is visible from left
+                let new = self.at(i, j);
+                if new > max {
+                    let visible = &mut visibility[j * self.width + i];
+                    if !*visible {
+                        res += 1;
+                    }
+                    *visible = true;
+                    max = new;
+                }
+                if max == b'9' {
+                    break;
+                }
+            }
         }
-    }
-    if right {
-        return true;
-    }
-    let mut up = true;
-    for k in 0..j {
-        if grid[k * width + i] >= v {
-            up = false;
-            break;
+        // col visibility
+        for i in 1..self.width - 2 {
+            // skip first & last cols that are always visible left/right
+            // up visibility
+            visibility[i] = true;
+            let mut max = self.at(i, 0);
+            for j in 1..self.length - 1 {
+                // self.length-1 is visible from down
+                let new = self.at(i, j);
+                if new > max {
+                    let visible = &mut visibility[j * self.width + i];
+                    if !*visible {
+                        res += 1;
+                    }
+                    *visible = true;
+                    max = new;
+                }
+                if max == b'9' {
+                    break;
+                }
+            }
+            // right visibility
+            visibility[(self.length - 1) * (self.width)] = true;
+            let mut max = self.at(i, self.length - 1);
+            for j in (1..self.length - 1).rev() {
+                // 0 is visible from up
+                let new = self.at(i, j);
+                if new > max {
+                    let visible = &mut visibility[j * self.width + i];
+                    if !*visible {
+                        res += 1;
+                    }
+                    *visible = true;
+                    max = new;
+                }
+                if max == b'9' {
+                    break;
+                }
+            }
         }
+        res
     }
-    if up {
-        return true;
-    }
-    let mut down = true;
-    for k in j + 1..length {
-        if grid[k * width + i] >= v {
-            down = false;
-            break;
-        }
-    }
-    if down {
-        return true;
-    }
-    false
+}
+
+fn run(input: &str) -> usize {
+    let forest = Forest::from_str(input);
+    forest.count_visible()
 }
 
 #[cfg(test)]
@@ -75,8 +124,7 @@ mod tests {
     #[test]
     fn run_test() {
         assert_eq!(
-            run("
-30373
+            run("30373
 25512
 65332
 33549
