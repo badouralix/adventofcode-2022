@@ -9,7 +9,7 @@ fn run(input: &str) -> usize {
             if line.is_empty() {
                 let total = load;
                 load = 0;
-                return Some(total)
+                return Some(total);
             }
             load += line.parse::<usize>().unwrap();
             last.then_some(load)

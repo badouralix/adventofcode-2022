@@ -5,7 +5,10 @@ fn main() {
 const MAX_DIR_SIZE: usize = 100000;
 
 fn run(input: &str) -> usize {
-    parse_dir_sizes(input).into_iter().filter(|&x| x < MAX_DIR_SIZE).sum()
+    parse_dir_sizes(input)
+        .into_iter()
+        .filter(|&x| x < MAX_DIR_SIZE)
+        .sum()
 }
 
 fn parse_dir_sizes(input: &str) -> Vec<usize> {

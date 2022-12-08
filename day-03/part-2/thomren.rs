@@ -38,7 +38,7 @@ fn get_bytes_set(line: &str) -> u128 {
 
 /// Base 2 logarithm of a u128
 fn ilog(x: u128) -> u32 {
-  x.next_power_of_two().trailing_zeros()
+    x.next_power_of_two().trailing_zeros()
 }
 
 fn priority(c: u8) -> usize {
@@ -55,12 +55,16 @@ mod tests {
 
     #[test]
     fn run_test() {
-        assert_eq!(run("
+        assert_eq!(
+            run("
 vJrwpWtwJgWrhcsFMMfFFhFp
 jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
 PmmdzqPrVvPwwTWBwg
 wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
 ttgJtRGJQctTZtZT
-CrZsJsPPZsGzwwsLwLmpwMDw".trim()), 70)
+CrZsJsPPZsGzwwsLwLmpwMDw"
+                .trim()),
+            70
+        )
     }
 }

@@ -5,8 +5,8 @@ use aoc::{
     paullgdc::{
         arena::Handle,
         array::Array,
-        tree::Tree,
         tokenize::{parse_decimal_u32, Tokenizer},
+        tree::Tree,
     },
 };
 

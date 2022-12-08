@@ -2,16 +2,24 @@ fn main() {
     aoc::run(run)
 }
 
-#[allow(clippy::needless_range_loop)] 
+#[allow(clippy::needless_range_loop)]
 fn run(input: &str) -> usize {
-    let trees = input.lines()
-        .map(|line| line.as_bytes().iter()
-            .map(|&x| x - b'0').collect::<Vec<u8>>())
+    let trees = input
+        .lines()
+        .map(|line| {
+            line.as_bytes()
+                .iter()
+                .map(|&x| x - b'0')
+                .collect::<Vec<u8>>()
+        })
         .collect::<Vec<Vec<u8>>>();
     let (height, width) = (trees.len(), trees[0].len());
 
-    (0..height).flat_map(|i| (0..width).map(move |j| (i, j)))
-        .map(|pos| scenic_score(&trees, pos)).max().unwrap_or_default()
+    (0..height)
+        .flat_map(|i| (0..width).map(move |j| (i, j)))
+        .map(|pos| scenic_score(&trees, pos))
+        .max()
+        .unwrap_or_default()
 }
 
 fn scenic_score(trees: &Vec<Vec<u8>>, pos: (usize, usize)) -> usize {
@@ -26,7 +34,7 @@ fn scenic_score(trees: &Vec<Vec<u8>>, pos: (usize, usize)) -> usize {
             j += dy;
             if i < 0 || j < 0 || i >= height || j >= width {
                 break;
-            } 
+            }
             distance += 1;
             if trees[i as usize][j as usize] >= trees[pos.0][pos.1] {
                 break;
@@ -43,11 +51,15 @@ mod tests {
 
     #[test]
     fn run_test() {
-        assert_eq!(run("
+        assert_eq!(
+            run("
 30373
 25512
 65332
 33549
-35390".trim()), 8)
+35390"
+                .trim()),
+            8
+        )
     }
 }

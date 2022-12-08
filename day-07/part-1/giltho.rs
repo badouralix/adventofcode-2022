@@ -56,12 +56,10 @@ impl DirKnowledge {
         match self {
             Self::NoKnowledge => panic!("Didn't learn everything"),
             Self::Known(elems) => {
-                let (sub_answer, size) = elems
-                    .iter()
-                    .fold((0, 0), |(x, y), (_, content)| {
-                        let (xp, yp) = content.answer();
-                        (x + xp, y + yp)
-                    });
+                let (sub_answer, size) = elems.iter().fold((0, 0), |(x, y), (_, content)| {
+                    let (xp, yp) = content.answer();
+                    (x + xp, y + yp)
+                });
                 if size <= CUTOFF {
                     (sub_answer + size, size)
                 } else {

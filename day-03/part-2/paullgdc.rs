@@ -55,11 +55,14 @@ mod tests {
 
     #[test]
     fn run_test() {
-        assert_eq!(run("vJrwpWtwJgWrhcsFMMfFFhFp
+        assert_eq!(
+            run("vJrwpWtwJgWrhcsFMMfFFhFp
 jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
 PmmdzqPrVvPwwTWBwg
 wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
 ttgJtRGJQctTZtZT
-CrZsJsPPZsGzwwsLwLmpwMDw"), 70)
+CrZsJsPPZsGzwwsLwLmpwMDw"),
+            70
+        )
     }
 }

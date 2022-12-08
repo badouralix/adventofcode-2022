@@ -13,7 +13,7 @@ fn run(input: &str) -> usize {
     input.lines().map(compute_score).sum()
 }
 
-fn compute_score(line:  &str) -> usize {
+fn compute_score(line: &str) -> usize {
     let line = line.as_bytes();
     let opponent_move = line[0] - b'A';
     let elve_move = line[2] - b'X';
@@ -31,9 +31,13 @@ mod tests {
 
     #[test]
     fn run_test() {
-        assert_eq!(run("
+        assert_eq!(
+            run("
 A Y
 B X
-C Z".trim()), 15)
+C Z"
+            .trim()),
+            15
+        )
     }
 }

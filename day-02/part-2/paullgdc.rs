@@ -18,7 +18,6 @@ fn run(input: &str) -> isize {
     total
 }
 
-
 fn score(round: [u8; 4]) -> u8 {
     (round[0] - b'A' + (round[2] - b'X') + 2) % 3 + 1 + (round[2] - b'X') * 3
 }
