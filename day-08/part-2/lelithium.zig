@@ -6,7 +6,7 @@ const stdout = std.io.getStdOut().writer(); //prepare stdout to write in
 
 const LEN = if (builtin.is_test) 5 else 99; // input is always a square
 
-fn get_char(input: *const [:0]const u8, x: usize, y: usize) u8 {
+inline fn get_char(input: *const [:0]const u8, x: usize, y: usize) u8 {
     return input.*[x * (LEN + 1) + y];
 }
 
