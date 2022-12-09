@@ -1,10 +1,10 @@
-use aoc::enizor::BitSet;
+use aoc::enizor::bitset::{bitset_size, ArrayBitSet};
 
 fn main() {
     aoc::run(run)
 }
-
-type RuckSack = BitSet<1>;
+const N: usize = bitset_size(b'z' as usize - b'A' as usize + 1);
+type RuckSack = ArrayBitSet<N>;
 
 fn run(input: &str) -> u32 {
     // Your code goes here
@@ -12,7 +12,7 @@ fn run(input: &str) -> u32 {
     let mut res = 0;
     let mut group_count = 0;
     let mut group = RuckSack::ones();
-    let mut current_elve = RuckSack::default();
+    let mut current_elve = RuckSack::new();
     for (i, &c) in bytes.iter().enumerate() {
         if c != b'\n' {
             current_elve.set(c - b'A');
@@ -20,7 +20,7 @@ fn run(input: &str) -> u32 {
         if c == b'\n' || i == bytes.len() - 1 {
             group_count = (group_count + 1) % 3;
             group &= current_elve;
-            current_elve = RuckSack::default();
+            current_elve = RuckSack::new();
             if group_count == 0 {
                 let badge = group.first_set();
                 group = RuckSack::ones();
