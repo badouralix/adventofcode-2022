@@ -1,18 +1,19 @@
-use aoc::enizor::BitSet;
+use aoc::enizor::bitset::{bitset_size, ArrayBitSet};
 
 fn main() {
     aoc::run(run)
 }
 
-type Compartment = BitSet<1>;
+const N: usize = bitset_size(b'z' as usize - b'A' as usize + 1);
+type Compartment = ArrayBitSet<N>;
 
 fn run(input: &str) -> u32 {
     // Your code goes here
     let bytes = input.as_bytes();
     let mut res = 0;
     for line in bytes.split(|&b| b == b'\n') {
-        let mut left = Compartment::default();
-        let mut right = Compartment::default();
+        let mut left = Compartment::new();
+        let mut right = Compartment::new();
         let l = line.len();
         for c in &line[..l / 2] {
             left.set(c - b'A');
