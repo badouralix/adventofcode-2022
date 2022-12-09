@@ -78,8 +78,7 @@ fn compute_visibility(trees: &Matrix<u8>) -> u32 {
 
 fn run(input: &str) -> u32 {
     let trees = parse_grid(&mut Tokenizer::new(input.as_bytes()));
-    let visibility = compute_visibility(&trees);
-    visibility
+    compute_visibility(&trees)
 }
 
 #[cfg(test)]

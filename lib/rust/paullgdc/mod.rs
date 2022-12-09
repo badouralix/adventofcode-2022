@@ -151,7 +151,11 @@ pub mod tokenize {
             self.advance(next.len());
             Some(next)
         }
+        pub fn end(&self) -> bool {
+            self.pos == self.input.len()
+        }
     }
+
 }
 
 pub mod bitset {
