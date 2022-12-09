@@ -479,3 +479,88 @@ pub mod array {
         }
     }
 }
+
+pub mod matrix {
+    use std::{
+        fmt::Debug,
+        ops::{Index, IndexMut},
+    };
+
+    pub struct Matrix<T> {
+        inner: Vec<T>,
+        pub dims: (usize, usize),
+    }
+
+    impl<T> Matrix<T> {
+        pub fn from_vec(v: Vec<T>, row_len: usize) -> Option<Self> {
+            if v.len() % row_len != 0 {
+                return None;
+            }
+            Some(Self {
+                dims: (row_len, v.len() / row_len),
+                inner: v,
+            })
+        }
+
+        pub fn map<U, F: FnMut(&T) -> U>(&self, f: F) -> Matrix<U> {
+            let mut m2 = self.inner.iter().map(f).collect::<Matrix<_>>();
+            m2.dims = self.dims;
+            m2
+        }
+
+        pub fn get(&self, i: usize, j: usize) -> Option<&T> {
+            if i >= self.dims.0 || j >= self.dims.1 {
+                None
+            } else {
+                self.inner.get(i + self.dims.0 * j)
+            }
+        }
+
+        pub fn get_mut(&mut self, i: usize, j: usize) -> Option<&mut T> {
+            if i >= self.dims.0 || j >= self.dims.1 {
+                None
+            } else {
+                self.inner.get_mut(i + self.dims.0 * j)
+            }
+        }
+
+        pub fn iter(&self) -> impl Iterator<Item = &T> {
+            self.inner.iter()
+        }
+    }
+
+    impl<T: Debug> Debug for Matrix<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            f.write_str("[")?;
+            for i in 0..self.dims.1 {
+                f.debug_list()
+                    .entries(self.inner[(i * self.dims.0)..(i + 1) * self.dims.0].iter())
+                    .finish()?;
+                f.write_str("\n")?;
+            }
+            f.write_str("]")?;
+            Ok(())
+        }
+    }
+
+    impl<T> FromIterator<T> for Matrix<T> {
+        fn from_iter<U: IntoIterator<Item = T>>(iter: U) -> Self {
+            let inner = iter.into_iter().collect::<Vec<T>>();
+            let len = inner.len();
+            Self::from_vec(inner, len).unwrap()
+        }
+    }
+
+    impl<T> Index<(usize, usize)> for Matrix<T> {
+        type Output = T;
+        fn index(&self, index: (usize, usize)) -> &Self::Output {
+            self.get(index.0, index.1).unwrap()
+        }
+    }
+
+    impl<T> IndexMut<(usize, usize)> for Matrix<T> {
+        fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
+            self.get_mut(index.0, index.1).unwrap()
+        }
+    }
+}
