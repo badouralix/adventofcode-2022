@@ -22,12 +22,12 @@ fn parse_grid(tokenizer: &mut Tokenizer) -> Matrix<u8> {
     Matrix::from_vec(trees, row_len).unwrap()
 }
 
-fn compute_visibility(trees: &Matrix<u8>) -> Matrix<u32> {
-    let mut result = trees.map(|_| 1);
+fn compute_visibility(trees: &Matrix<u8>) -> u32 {
+    let mut max_vis = 0;
     for j in 0..trees.dims.1 {
         for i in 0..trees.dims.0 {
             let tree = trees[(i, j)];
-            let total_visibility = &mut result[(i, j)];
+            let mut total_visibility = 1;
             let mut vis;
 
             vis = 0;
@@ -38,7 +38,7 @@ fn compute_visibility(trees: &Matrix<u8>) -> Matrix<u32> {
                     break;
                 }
             }
-            *total_visibility *= vis;
+            total_visibility *= vis;
 
             vis = 0;
             for k in (0..i).rev() {
@@ -48,7 +48,7 @@ fn compute_visibility(trees: &Matrix<u8>) -> Matrix<u32> {
                     break;
                 }
             }
-            *total_visibility *= vis;
+            total_visibility *= vis;
 
             vis = 0;
             for k in j + 1..trees.dims.1 {
@@ -58,7 +58,7 @@ fn compute_visibility(trees: &Matrix<u8>) -> Matrix<u32> {
                     break;
                 }
             }
-            *total_visibility *= vis;
+            total_visibility *= vis;
 
             vis = 0;
             for k in (0..j).rev() {
@@ -68,16 +68,18 @@ fn compute_visibility(trees: &Matrix<u8>) -> Matrix<u32> {
                     break;
                 }
             }
-            *total_visibility *= vis;
+            total_visibility *= vis;
+
+            max_vis = std::cmp::max(max_vis, total_visibility);
         }
     }
-    result
+    max_vis
 }
 
 fn run(input: &str) -> u32 {
     let trees = parse_grid(&mut Tokenizer::new(input.as_bytes()));
     let visibility = compute_visibility(&trees);
-    visibility.iter().copied().max().unwrap()
+    visibility
 }
 
 #[cfg(test)]
