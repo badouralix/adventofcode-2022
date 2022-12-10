@@ -13,7 +13,7 @@ fn run(input: &str) -> usize {
     input.lines().map(compute_score).sum()
 }
 
-fn compute_score(line:  &str) -> usize {
+fn compute_score(line: &str) -> usize {
     let line = line.as_bytes();
     let opponent_move = line[0] - b'A';
     let outcome = line[2] - b'X';
@@ -21,7 +21,7 @@ fn compute_score(line:  &str) -> usize {
         0 => (opponent_move as isize - 1).rem_euclid(3),
         1 => opponent_move as isize,
         2 => (opponent_move as isize + 1) % 3,
-        _ => panic!("invalid outcome: {}", line[2])
+        _ => panic!("invalid outcome: {}", line[2]),
     } as usize;
     3 * outcome as usize + elve_move + 1
 }

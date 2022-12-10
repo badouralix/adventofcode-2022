@@ -1,5 +1,12 @@
+use std::env::args;
+use std::time::Instant;
+
 fn main() {
-    aoc::run(run)
+    let now = Instant::now();
+    let output = run(&args().nth(1).expect("Please provide an input"));
+    let elapsed = now.elapsed();
+    println!("_duration:{}", elapsed.as_secs_f64() * 1000.);
+    println!("{}", output);
 }
 
 const CUTOFF: u64 = 100000;
@@ -56,12 +63,10 @@ impl DirKnowledge {
         match self {
             Self::NoKnowledge => panic!("Didn't learn everything"),
             Self::Known(elems) => {
-                let (sub_answer, size) = elems
-                    .iter()
-                    .fold((0, 0), |(x, y), (_, content)| {
-                        let (xp, yp) = content.answer();
-                        (x + xp, y + yp)
-                    });
+                let (sub_answer, size) = elems.iter().fold((0, 0), |(x, y), (_, content)| {
+                    let (xp, yp) = content.answer();
+                    (x + xp, y + yp)
+                });
                 if size <= CUTOFF {
                     (sub_answer + size, size)
                 } else {

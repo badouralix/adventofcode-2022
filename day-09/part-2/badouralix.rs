@@ -1,4 +1,6 @@
 use core::fmt;
+use std::env::args;
+use std::time::Instant;
 use std::{cmp, collections::HashSet};
 
 const SIZE: usize = 10;
@@ -90,7 +92,11 @@ impl fmt::Display for Rope {
 }
 
 fn main() {
-    aoc::run(run)
+    let now = Instant::now();
+    let output = run(&args().nth(1).expect("Please provide an input"));
+    let elapsed = now.elapsed();
+    println!("_duration:{}", elapsed.as_secs_f64() * 1000.);
+    println!("{}", output);
 }
 
 fn run(input: &str) -> usize {

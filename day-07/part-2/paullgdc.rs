@@ -1,17 +1,23 @@
+use std::env::args;
 use std::ops::Deref;
+use std::time::Instant;
 
 use aoc::{
     for_children,
     paullgdc::{
         arena::Handle,
         array::Array,
-        tree::Tree,
         tokenize::{parse_decimal_u32, Tokenizer},
+        tree::Tree,
     },
 };
 
 fn main() {
-    aoc::run(run)
+    let now = Instant::now();
+    let output = run(&args().nth(1).expect("Please provide an input"));
+    let elapsed = now.elapsed();
+    println!("_duration:{}", elapsed.as_secs_f64() * 1000.);
+    println!("{}", output);
 }
 
 type NodeName = Array<u8, 16>;
@@ -146,7 +152,6 @@ fn run(input: &str) -> u32 {
     let tree = build_tree_from_output(&output).unwrap();
     let root = tree.root.unwrap();
 
-
     fn visit_sum_size(tree: &Tree<FsNode>, node: Handle) -> u32 {
         let mut sum = 0;
         for_children!(c of node node in graph tree {
@@ -159,13 +164,17 @@ fn run(input: &str) -> u32 {
             }
         });
 
-
         sum
     }
     let total_size = visit_sum_size(&tree, root);
 
     const MAX_SIZE: u32 = 40000000;
-    fn visit_min_directory(min_dir: &mut u32, total: u32, tree: &Tree<FsNode>, node: Handle) -> u32 {
+    fn visit_min_directory(
+        min_dir: &mut u32,
+        total: u32,
+        tree: &Tree<FsNode>,
+        node: Handle,
+    ) -> u32 {
         let mut sum = 0;
         for_children!(c of node node in graph tree {
             match &tree.get(c).unwrap().content {
@@ -216,7 +225,7 @@ $ ls
 8033020 d.log
 5626152 d.ext
 7214296 k"),
-24933642
+            24933642
         )
     }
 }

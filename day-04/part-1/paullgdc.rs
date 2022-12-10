@@ -1,9 +1,15 @@
+use std::env::args;
 use std::ops::RangeInclusive;
+use std::time::Instant;
 
 use aoc::paullgdc::tokenize::Tokenizer;
 
 fn main() {
-    aoc::run(run)
+    let now = Instant::now();
+    let output = run(&args().nth(1).expect("Please provide an input"));
+    let elapsed = now.elapsed();
+    println!("_duration:{}", elapsed.as_secs_f64() * 1000.);
+    println!("{}", output);
 }
 
 fn parse_range(range: &mut Tokenizer) -> Option<RangeInclusive<u8>> {
