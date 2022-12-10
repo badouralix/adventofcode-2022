@@ -10,7 +10,7 @@ class ThChSubmission(SubmissionPy):
         :return: solution flag
         """
         knots_pos = [[0, 0] for _ in range(NB_KNOTS)]  # all knots
-        t_positions = set(tuple(knots_pos[-1]))
+        t_positions = set()
         for instruction in s.splitlines():
             direction, nb_steps = instruction.split()
             index = 1 if direction == "U" or direction == "D" else 0
@@ -31,8 +31,8 @@ class ThChSubmission(SubmissionPy):
                         knots_pos[k][1] += min(
                             1, max(-1, knots_pos[k - 1][1] - knots_pos[k][1])
                         )
-                        if k == len(knots_pos) - 1:
-                            t_positions.add(tuple(knots_pos[k]))
+                    if k == len(knots_pos) - 1:
+                        t_positions.add(tuple(knots_pos[k]))
 
         return len(t_positions)
 

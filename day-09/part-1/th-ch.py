@@ -9,7 +9,7 @@ class ThChSubmission(SubmissionPy):
         """
         h_pos = [0, 0]
         t_pos = [0, 0]
-        t_positions = set(tuple(t_pos))
+        t_positions = set()
         for instruction in s.splitlines():
             direction, nb_steps = instruction.split()
             index = 1 if direction == "U" or direction == "D" else 0
@@ -24,7 +24,7 @@ class ThChSubmission(SubmissionPy):
                 if should_move:
                     t_pos[0] += min(1, max(-1, h_pos[0] - t_pos[0]))
                     t_pos[1] += min(1, max(-1, h_pos[1] - t_pos[1]))
-                    t_positions.add(tuple(t_pos))
+                t_positions.add(tuple(t_pos))
 
         return len(t_positions)
 
