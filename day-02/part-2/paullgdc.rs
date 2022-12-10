@@ -1,5 +1,12 @@
+use std::env::args;
+use std::time::Instant;
+
 fn main() {
-    aoc::run(run)
+    let now = Instant::now();
+    let output = run(&args().nth(1).expect("Please provide an input"));
+    let elapsed = now.elapsed();
+    println!("_duration:{}", elapsed.as_secs_f64() * 1000.);
+    println!("{}", output);
 }
 
 fn run(input: &str) -> isize {
@@ -17,7 +24,6 @@ fn run(input: &str) -> isize {
 
     total
 }
-
 
 fn score(round: [u8; 4]) -> u8 {
     (round[0] - b'A' + (round[2] - b'X') + 2) % 3 + 1 + (round[2] - b'X') * 3

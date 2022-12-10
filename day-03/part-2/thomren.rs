@@ -1,5 +1,12 @@
+use std::env::args;
+use std::time::Instant;
+
 fn main() {
-    aoc::run(run)
+    let now = Instant::now();
+    let output = run(&args().nth(1).expect("Please provide an input"));
+    let elapsed = now.elapsed();
+    println!("_duration:{}", elapsed.as_secs_f64() * 1000.);
+    println!("{}", output);
 }
 
 const GROUP_SIZE: usize = 3;
@@ -38,7 +45,7 @@ fn get_bytes_set(line: &str) -> u128 {
 
 /// Base 2 logarithm of a u128
 fn ilog(x: u128) -> u32 {
-  x.next_power_of_two().trailing_zeros()
+    x.next_power_of_two().trailing_zeros()
 }
 
 fn priority(c: u8) -> usize {

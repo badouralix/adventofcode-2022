@@ -1,17 +1,23 @@
+use std::env::args;
 use std::ops::Deref;
+use std::time::Instant;
 
 use aoc::{
     for_children,
     paullgdc::{
         arena::Handle,
         array::Array,
-        tree::Tree,
         tokenize::{parse_decimal_u32, Tokenizer},
+        tree::Tree,
     },
 };
 
 fn main() {
-    aoc::run(run)
+    let now = Instant::now();
+    let output = run(&args().nth(1).expect("Please provide an input"));
+    let elapsed = now.elapsed();
+    println!("_duration:{}", elapsed.as_secs_f64() * 1000.);
+    println!("{}", output);
 }
 
 type NodeName = Array<u8, 16>;

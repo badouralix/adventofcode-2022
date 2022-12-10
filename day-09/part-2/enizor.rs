@@ -1,7 +1,13 @@
 use aoc::enizor::bitset::*;
+use std::env::args;
+use std::time::Instant;
 
 fn main() {
-    aoc::run(run)
+    let now = Instant::now();
+    let output = run(&args().nth(1).expect("Please provide an input"));
+    let elapsed = now.elapsed();
+    println!("_duration:{}", elapsed.as_secs_f64() * 1000.);
+    println!("{}", output);
 }
 
 const S: usize = 1024;

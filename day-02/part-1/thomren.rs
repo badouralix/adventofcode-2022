@@ -13,7 +13,7 @@ fn run(input: &str) -> usize {
     input.lines().map(compute_score).sum()
 }
 
-fn compute_score(line:  &str) -> usize {
+fn compute_score(line: &str) -> usize {
     let line = line.as_bytes();
     let opponent_move = line[0] - b'A';
     let elve_move = line[2] - b'X';

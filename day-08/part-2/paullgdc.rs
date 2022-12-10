@@ -1,7 +1,14 @@
+use std::env::args;
+use std::time::Instant;
+
 use aoc::paullgdc::{matrix::Matrix, tokenize::Tokenizer};
 
 fn main() {
-    aoc::run(run)
+    let now = Instant::now();
+    let output = run(&args().nth(1).expect("Please provide an input"));
+    let elapsed = now.elapsed();
+    println!("_duration:{}", elapsed.as_secs_f64() * 1000.);
+    println!("{}", output);
 }
 
 fn parse_grid(tokenizer: &mut Tokenizer) -> Matrix<u8> {
