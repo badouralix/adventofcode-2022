@@ -35,7 +35,7 @@ impl<'a> Forest<'a> {
             }
         }
         let mut right = 0;
-        for k in i+1..self.width-1 {
+        for k in i + 1..self.width - 1 {
             right += 1;
             if self.at(k, j) >= v {
                 break;
@@ -49,7 +49,7 @@ impl<'a> Forest<'a> {
             }
         }
         let mut down = 0;
-        for k in j+1..self.length {
+        for k in j + 1..self.length {
             down += 1;
             if self.at(i, k) >= v {
                 break;
@@ -60,8 +60,9 @@ impl<'a> Forest<'a> {
 
     fn max_score(&self) -> usize {
         let mut res = 0;
-        for j in 1..self.length-1 { // skip first & last rows that have score 0
-            for i in 1..self.width-2 {
+        for j in 1..self.length - 1 {
+            // skip first & last rows that have score 0
+            for i in 1..self.width - 2 {
                 let s = self.score(i, j);
                 res = res.max(s)
             }
