@@ -77,7 +77,7 @@ class Monkey {
     std::cerr << '\n';
   }
 
-  void AddItem(int item) { items_.push_back(item); }
+  void AddItem(std::int64_t item) { items_.push_back(item); }
   void Turn(std::vector<Monkey>& monkeys) {
     while (!items_.empty()) {
       InspectItem(monkeys);
@@ -87,17 +87,17 @@ class Monkey {
   int GetInspections() const { return inspections_; }
 
  private:
-  std::deque<int> items_;
+  std::deque<std::int64_t> items_;
   std::string operation_;
   int divisor_;
   int true_target_;
   int false_target_;
   int inspections_;
 
-  int UpdateWorryLevel(int item) {
-    int lhs = item;
+  std::int64_t UpdateWorryLevel(std::int64_t item) {
+    std::int64_t lhs = item;
     char op = operation_.at(4);
-    int rhs;
+    std::int64_t rhs;
     if (operation_.at(6) == 'o') {
       rhs = item;
     } else {
@@ -115,7 +115,7 @@ class Monkey {
   }
 
   void InspectItem(std::vector<Monkey>& monkeys) {
-    int item = UpdateWorryLevel(items_.front());
+    std::int64_t item = UpdateWorryLevel(items_.front());
     items_.pop_front();
     if (item % divisor_ == 0) {
       monkeys.at(true_target_).AddItem(item);
