@@ -133,7 +133,7 @@ fn run(input: &str) -> usize {
                 monkeys[dst].items.push(new);
             }
             inspects[src] += monkeys[src].items.len();
-            monkeys[src].items = Vec::new();
+            monkeys[src].items.clear();
         }
 
         // for monkey in &monkeys {
