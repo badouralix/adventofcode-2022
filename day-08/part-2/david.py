@@ -17,9 +17,7 @@ class DavidSubmission(SubmissionPy):
         for i, j in path:
             score += 1
             if grid[i][j] >= h:
-                # print(f"   path={path} score={score}")
                 return score
-        # print(f"   path={path} score={score}")
         return score
         
 
@@ -35,7 +33,6 @@ class DavidSubmission(SubmissionPy):
         for i0 in range(n):
             for j0 in range(m):
                 score = self.scenic_score(grid, i0, j0)
-                # print(i0, j0, grid[i0][j0], score)
                 if result is None or result < score:
                     result = score
         return result
