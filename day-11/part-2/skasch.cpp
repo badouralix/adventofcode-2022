@@ -10,8 +10,6 @@
 
 inline constexpr int kRounds = 10000;
 
-using WorryLevel = std::int64_t;
-
 class Monkey {
  public:
   Monkey(std::istringstream& iss) : items_{}, inspections_{0} {
@@ -80,27 +78,27 @@ class Monkey {
     std::cerr << '\n';
   }
 
-  void Turn(std::vector<Monkey>& monkeys, WorryLevel base) {
+  void Turn(std::vector<Monkey>& monkeys, std::int64_t base) {
     while (!items_.empty()) {
       InspectItem(monkeys, base);
     }
   }
 
-  WorryLevel GetDivisor() const { return divisor_; }
+  std::int64_t GetDivisor() const { return divisor_; }
   int GetInspections() const { return inspections_; }
 
  private:
-  std::deque<WorryLevel> items_;
+  std::deque<std::int64_t> items_;
   std::string operation_;
-  WorryLevel divisor_;
+  std::int64_t divisor_;
   int true_target_;
   int false_target_;
   int inspections_;
 
-  int UpdateWorryLevel(WorryLevel item, WorryLevel base) {
-    WorryLevel lhs = item;
+  int UpdateWorryLevel(std::int64_t item, std::int64_t base) {
+    std::int64_t lhs = item;
     char op = operation_.at(4);
-    WorryLevel rhs;
+    std::int64_t rhs;
     if (operation_.at(6) == 'o') {
       rhs = item;
     } else {
@@ -117,10 +115,10 @@ class Monkey {
     }
   }
 
-  void AddItem(WorryLevel item) { items_.push_back(item); }
+  void AddItem(std::int64_t item) { items_.push_back(item); }
 
-  void InspectItem(std::vector<Monkey>& monkeys, WorryLevel base) {
-    WorryLevel item = UpdateWorryLevel(items_.front(), base);
+  void InspectItem(std::vector<Monkey>& monkeys, std::int64_t base) {
+    std::int64_t item = UpdateWorryLevel(items_.front(), base);
     items_.pop_front();
     if (item % divisor_ == 0) {
       monkeys.at(true_target_).AddItem(item);
@@ -138,7 +136,7 @@ std::string Run(const std::string& input) {
   while (!iss.eof()) {
     monkeys.emplace_back(iss);
   }
-  WorryLevel base = 1;
+  std::int64_t base = 1;
   for (const auto& monkey : monkeys) {
     base *= monkey.GetDivisor();
   }
@@ -147,8 +145,8 @@ std::string Run(const std::string& input) {
       monkeys.at(index).Turn(monkeys, base);
     }
   }
-  std::priority_queue<WorryLevel, std::vector<WorryLevel>,
-                      std::greater<WorryLevel>>
+  std::priority_queue<std::int64_t, std::vector<std::int64_t>,
+                      std::greater<std::int64_t>>
       max2;
   for (int index = 0; index < monkeys.size(); ++index) {
     max2.push(monkeys.at(index).GetInspections());
@@ -156,7 +154,7 @@ std::string Run(const std::string& input) {
       max2.pop();
     }
   }
-  WorryLevel score = max2.top();
+  std::int64_t score = max2.top();
   max2.pop();
   score *= max2.top();
   return std::to_string(score);
