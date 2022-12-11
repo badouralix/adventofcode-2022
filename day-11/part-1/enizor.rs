@@ -1,4 +1,3 @@
-use std::collections::VecDeque;
 use std::env::args;
 use std::time::Instant;
 
@@ -10,96 +9,114 @@ fn main() {
     println!("{}", output);
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 enum Op {
-    Add(usize),
+    Add(u64),
+    Mul(u64),
     Double,
-    Mul(usize),
     Square,
 }
 
 impl Default for Op {
     fn default() -> Self {
-        Op::Add(0)
+        Op::Square
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 struct Monkey {
-    items: VecDeque<usize>,
     operation: Op,
-    test: usize,
+    test: u64,
     target_true: usize,
     target_false: usize,
-    inspected: usize,
+    inspected: u64,
 }
 
-impl Monkey {
-    fn from_str(input: &str) -> Self {
-        let mut lines = input.lines().skip(1);
-        let items = lines.next().unwrap()[18..]
-            .split(", ")
-            .map(|s| s.parse().unwrap())
-            .collect::<VecDeque<_>>();
-        let operation_line = lines.next().unwrap();
-        let operand = match &operation_line[25..] {
-            "old" => usize::MAX,
-            s => s.parse().unwrap(),
-        };
-        let operation = match (operation_line.as_bytes()[23], operand) {
-            (b'*', usize::MAX) => Op::Square,
-            (b'*', v) => Op::Mul(v),
-            (b'+', usize::MAX) => Op::Double,
-            (b'+', v) => Op::Add(v),
-            _ => panic!("Unsupported operation"),
-        };
-        let test = lines.next().unwrap()[21..].parse().unwrap();
-        let target_true = lines.next().unwrap()[29..].parse().unwrap();
-        let target_false = lines.next().unwrap()[30..].parse().unwrap();
-        Self {
-            items,
-            operation,
-            test,
-            target_true,
-            target_false,
-            inspected: 0,
-        }
-    }
+#[derive(Debug, Default, Clone, Copy)]
+struct Item {
+    monkey: usize,
+    worryness: u64,
 }
 
-#[derive(Debug, Default)]
-struct MonkeyBand(Vec<Monkey>);
+#[derive(Debug, Default, Clone)]
+struct MonkeyBand {
+    items: Vec<Item>,
+    band: Vec<Monkey>,
+}
 
 impl MonkeyBand {
+    fn from_str(input: &str) -> Self {
+        let mut items = Vec::new();
+        let mut band = Vec::new();
+        for s in input.trim().split("\n\n") {
+            let mut lines = s.lines();
+            let header = lines.next().unwrap();
+            let monkey_num = header[7..header.len() - 1].parse().unwrap();
+            for v in lines.next().unwrap()[18..].split(", ") {
+                let item = Item {
+                    monkey: monkey_num,
+                    worryness: v.parse().unwrap(),
+                };
+                items.push(item);
+            }
+            let operation_line = lines.next().unwrap();
+            let operand = match &operation_line[25..] {
+                "old" => -1i64,
+                s => s.parse().unwrap(),
+            };
+            let operation = match (operation_line.as_bytes()[23], operand) {
+                (b'*', -1) => Op::Square,
+                (b'*', v) => Op::Mul(v as u64),
+                (b'+', -1) => Op::Double,
+                (b'+', v) => Op::Add(v as u64),
+                _ => panic!("Unsupported operation"),
+            };
+            let test = lines.next().unwrap()[21..].parse().unwrap();
+            let target_true = lines.next().unwrap()[29..].parse().unwrap();
+            let target_false = lines.next().unwrap()[30..].parse().unwrap();
+            let monkey = Monkey {
+                operation,
+                test,
+                target_true,
+                target_false,
+                inspected: 0,
+            };
+            band.resize(band.len().max(monkey_num as usize + 1), Monkey::default());
+            band[monkey_num as usize] = monkey;
+        }
+        Self { items, band }
+    }
+
     fn round(&mut self) {
-        for i in 0..self.0.len() {
-            let mut items = std::mem::take(&mut self.0[i].items);
+        for i in 0..self.band.len() {
             let mut inspected = 0;
-            for mut item in items.drain(..) {
-                let m = &self.0[i];
+            let m = self.band[i];
+            for item in &mut self.items {
+                if item.monkey as usize != i {
+                    continue;
+                }
                 inspected += 1;
                 match m.operation {
-                    Op::Add(v) => item += v,
-                    Op::Double => item *= 2,
-                    Op::Mul(v) => item *= v,
-                    Op::Square => item *= item,
+                    Op::Add(v) => item.worryness += v,
+                    Op::Double => item.worryness *= 2,
+                    Op::Mul(v) => item.worryness *= v,
+                    Op::Square => item.worryness *= item.worryness,
                 }
-                item /= 3;
-                let target = if item % m.test == 0 {
+                item.worryness /= 3;
+                item.monkey = if item.worryness % m.test == 0 {
                     m.target_true
                 } else {
                     m.target_false
                 };
-                self.0[target].items.push_back(item);
             }
-            self.0[i].inspected += inspected;
+            self.band[i].inspected += inspected;
         }
     }
 
-    fn monkey_business(&self) -> usize {
+    fn monkey_business(&self) -> u64 {
         let mut max1 = 0;
         let mut max2 = 0;
-        for m in &self.0 {
+        for m in &self.band {
             let mut i = m.inspected;
             if i > max1 {
                 (i, max1) = (max1, i);
@@ -112,11 +129,8 @@ impl MonkeyBand {
     }
 }
 
-fn run(input: &str) -> usize {
-    let mut monkeys = MonkeyBand::default();
-    for m in input.trim().split("\n\n") {
-        monkeys.0.push(Monkey::from_str(m));
-    }
+fn run(input: &str) -> u64 {
+    let mut monkeys = MonkeyBand::from_str(input);
     for _round in 0..20 {
         monkeys.round();
     }
