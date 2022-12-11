@@ -1,4 +1,3 @@
-use std::collections::VecDeque;
 use std::env::args;
 use std::time::Instant;
 
@@ -10,7 +9,7 @@ fn main() {
     println!("{}", output);
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 enum Op {
     Add(usize),
     Double,
@@ -24,9 +23,8 @@ impl Default for Op {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 struct Monkey {
-    items: VecDeque<usize>,
     operation: Op,
     test: usize,
     target_true: usize,
@@ -34,71 +32,89 @@ struct Monkey {
     inspected: usize,
 }
 
-impl Monkey {
-    fn from_str(input: &str) -> Self {
-        let mut lines = input.lines().skip(1);
-        let items = lines.next().unwrap()[18..]
-            .split(", ")
-            .map(|s| s.parse().unwrap())
-            .collect::<VecDeque<_>>();
-        let operation_line = lines.next().unwrap();
-        let operand = match &operation_line[25..] {
-            "old" => usize::MAX,
-            s => s.parse().unwrap(),
-        };
-        let operation = match (operation_line.as_bytes()[23], operand) {
-            (b'*', usize::MAX) => Op::Square,
-            (b'*', v) => Op::Mul(v),
-            (b'+', usize::MAX) => Op::Double,
-            (b'+', v) => Op::Add(v),
-            _ => panic!("Unsupported operation"),
-        };
-        let test = lines.next().unwrap()[21..].parse().unwrap();
-        let target_true = lines.next().unwrap()[29..].parse().unwrap();
-        let target_false = lines.next().unwrap()[30..].parse().unwrap();
-        Self {
-            items,
-            operation,
-            test,
-            target_true,
-            target_false,
-            inspected: 0,
-        }
-    }
+#[derive(Debug, Default, Clone, Copy)]
+struct Item {
+    monkey: usize,
+    worryness: usize,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 struct MonkeyBand {
+    items: Vec<Item>,
     band: Vec<Monkey>,
-    lcm: usize,
+    worry_lcm: usize,
 }
 
 impl MonkeyBand {
+    fn from_str(input: &str) -> Self {
+        let mut worry_lcm = 1;
+        let mut items = Vec::new();
+        let mut band = Vec::new();
+        for s in input.trim().split("\n\n") {
+            let mut lines = s.lines();
+            let header = lines.next().unwrap();
+            let monkey_num = header[7..header.len() - 1].parse().unwrap();
+            for v in lines.next().unwrap()[18..].split(", ") {
+                let item = Item {
+                    monkey: monkey_num,
+                    worryness: v.parse().unwrap(),
+                };
+                items.push(item);
+            }
+            let operation_line = lines.next().unwrap();
+            let operand = match &operation_line[25..] {
+                "old" => usize::MAX,
+                s => s.parse().unwrap(),
+            };
+            let operation = match (operation_line.as_bytes()[23], operand) {
+                (b'*', usize::MAX) => Op::Square,
+                (b'*', v) => Op::Mul(v),
+                (b'+', usize::MAX) => Op::Double,
+                (b'+', v) => Op::Add(v),
+                _ => panic!("Unsupported operation"),
+            };
+            let test = lines.next().unwrap()[21..].parse().unwrap();
+            worry_lcm = lcm(worry_lcm, test);
+            let target_true = lines.next().unwrap()[29..].parse().unwrap();
+            let target_false = lines.next().unwrap()[30..].parse().unwrap();
+            let monkey = Monkey {
+                operation,
+                test,
+                target_true,
+                target_false,
+                inspected: 0,
+            };
+            band.resize(band.len().max(monkey_num + 1), Monkey::default());
+            band[monkey_num] = monkey;
+        }
+        Self {
+            items,
+            band,
+            worry_lcm,
+        }
+    }
+
     fn round(&mut self) {
         for i in 0..self.band.len() {
-            let (left, right) = self.band.split_at_mut(i);
-            let (m, right) = right.split_first_mut().unwrap();
             let mut inspected = 0;
-            for mut item in m.items.drain(..) {
-                inspected += 1;
-                match m.operation {
-                    Op::Add(v) => item += v,
-                    Op::Double => item *= 2,
-                    Op::Mul(v) => item *= v,
-                    Op::Square => item *= item,
+            for item in &mut self.items {
+                if item.monkey != i {
+                    continue;
                 }
-                item %= self.lcm;
-                let target_index = if item % m.test == 0 {
+                inspected += 1;
+                let m = self.band[i];
+                match m.operation {
+                    Op::Add(v) => item.worryness += v,
+                    Op::Double => item.worryness *= 2,
+                    Op::Mul(v) => item.worryness *= v,
+                    Op::Square => item.worryness *= item.worryness,
+                }
+                item.worryness %= self.worry_lcm;
+                item.monkey = if item.worryness % m.test == 0 {
                     m.target_true
                 } else {
                     m.target_false
                 };
-                let target_monkey = if target_index > left.len() {
-                    &mut right[target_index - left.len() - 1]
-                } else {
-                    &mut left[target_index]
-                };
-                target_monkey.items.push_back(item);
             }
             self.band[i].inspected += inspected;
         }
@@ -117,13 +133,6 @@ impl MonkeyBand {
             }
         }
         max1 * max2
-    }
-
-    fn set_lcm(&mut self) {
-        self.lcm = 1;
-        for m in &self.band {
-            self.lcm = lcm(self.lcm, m.test);
-        }
     }
 }
 
@@ -144,11 +153,7 @@ fn gcd(a: usize, b: usize) -> usize {
 }
 
 fn run(input: &str) -> usize {
-    let mut monkeys = MonkeyBand::default();
-    for m in input.trim().split("\n\n") {
-        monkeys.band.push(Monkey::from_str(m));
-    }
-    monkeys.set_lcm();
+    let mut monkeys = MonkeyBand::from_str(input);
     for _round in 0..10000 {
         monkeys.round();
     }
