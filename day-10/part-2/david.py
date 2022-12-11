@@ -20,9 +20,6 @@ class DavidSubmission(SubmissionPy):
             nonlocal cycle, register            
             i, j = int((cycle-1)/self.COLUMNS), (cycle-1)%self.COLUMNS
             grid[i][j] = register in {j-1, j, j+1}
-            # print(f"cycle={cycle} i={i} j={j} x={register} grid={grid[i][j]}")
-            # if cycle in {40, 80, 120, 160, 200, 240}:
-            #    print("".join(["#" if grid[i][k] else "." for k in range(self.COLUMNS)]))
             register += buffer[cycle % 2] or 0
             cycle += 1
         
