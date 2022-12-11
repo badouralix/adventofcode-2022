@@ -97,12 +97,12 @@ impl MonkeyBand {
     fn round(&mut self) {
         for i in 0..self.band.len() {
             let mut inspected = 0;
+            let m = self.band[i];
             for item in &mut self.items {
                 if item.monkey != i {
                     continue;
                 }
                 inspected += 1;
-                let m = self.band[i];
                 match m.operation {
                     Op::Add(v) => item.worryness += v,
                     Op::Double => item.worryness *= 2,
