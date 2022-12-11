@@ -11,38 +11,38 @@ fn main() {
 
 #[derive(Debug, Clone, Copy)]
 enum Op {
-    Add(usize),
+    Add(u64),
+    Mul(u64),
     Double,
-    Mul(usize),
     Square,
 }
 
 impl Default for Op {
     fn default() -> Self {
-        Op::Add(0)
+        Op::Square
     }
 }
 
 #[derive(Debug, Default, Clone, Copy)]
 struct Monkey {
     operation: Op,
-    test: usize,
+    test: u64,
     target_true: usize,
     target_false: usize,
-    inspected: usize,
+    inspected: u64,
 }
 
 #[derive(Debug, Default, Clone, Copy)]
 struct Item {
     monkey: usize,
-    worryness: usize,
+    worryness: u64,
 }
 
 #[derive(Debug, Default, Clone)]
 struct MonkeyBand {
     items: Vec<Item>,
     band: Vec<Monkey>,
-    worry_lcm: usize,
+    worry_lcm: u64,
 }
 
 impl MonkeyBand {
@@ -63,14 +63,14 @@ impl MonkeyBand {
             }
             let operation_line = lines.next().unwrap();
             let operand = match &operation_line[25..] {
-                "old" => usize::MAX,
+                "old" => -1i64,
                 s => s.parse().unwrap(),
             };
             let operation = match (operation_line.as_bytes()[23], operand) {
-                (b'*', usize::MAX) => Op::Square,
-                (b'*', v) => Op::Mul(v),
-                (b'+', usize::MAX) => Op::Double,
-                (b'+', v) => Op::Add(v),
+                (b'*', -1) => Op::Square,
+                (b'*', v) => Op::Mul(v as u64),
+                (b'+', -1) => Op::Double,
+                (b'+', v) => Op::Add(v as u64),
                 _ => panic!("Unsupported operation"),
             };
             let test = lines.next().unwrap()[21..].parse().unwrap();
@@ -120,7 +120,7 @@ impl MonkeyBand {
         }
     }
 
-    fn monkey_business(&self) -> usize {
+    fn monkey_business(&self) -> u64 {
         let mut max1 = 0;
         let mut max2 = 0;
         for m in &self.band {
@@ -136,11 +136,11 @@ impl MonkeyBand {
     }
 }
 
-fn lcm(a: usize, b: usize) -> usize {
+fn lcm(a: u64, b: u64) -> u64 {
     a * b / gcd(a, b)
 }
 
-fn gcd(a: usize, b: usize) -> usize {
+fn gcd(a: u64, b: u64) -> u64 {
     if a > b {
         gcd(b, a)
     } else if a == b {
@@ -152,7 +152,7 @@ fn gcd(a: usize, b: usize) -> usize {
     }
 }
 
-fn run(input: &str) -> usize {
+fn run(input: &str) -> u64 {
     let mut monkeys = MonkeyBand::from_str(input);
     for _round in 0..10000 {
         monkeys.round();
