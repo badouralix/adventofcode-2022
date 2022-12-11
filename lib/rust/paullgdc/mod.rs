@@ -104,6 +104,34 @@ pub mod tokenize {
             Some(res)
         }
 
+        pub fn parse_next_decimal_i32(&mut self) -> Option<i32> {
+            let mul = if *self.input.get(self.pos)? == b'-' {
+                self.advance(1);
+                -1
+            } else {
+                1
+            };
+            let mut skip = 0;
+            let mut res = 0;
+            for (i, b) in self.input[self.pos..].iter().enumerate() {
+                match b {
+                    b'0'..=b'9' => {
+                        res *= 10;
+                        res += (b - b'0') as i32;
+                        skip = i + 1;
+                    }
+                    _ => {
+                        break;
+                    }
+                }
+            }
+            if skip == 0 {
+                return None;
+            }
+            self.pos += skip;
+            Some(res * mul)
+        }
+
         pub fn next_nth_byte(&self, n: usize) -> Option<u8> {
             self.input.get(self.pos + n).copied()
         }
@@ -124,6 +152,19 @@ pub mod tokenize {
             } else {
                 None
             }
+        }
+
+        pub fn eat_byte_or_end(&mut self, b: u8) -> Option<()> {
+            match self.next_nth_byte(0) {
+                Some(c) if c == b => {
+                    self.pos += 1;
+                }
+                Some(_) => {
+                    return None;
+                }
+                None => {}
+            }
+            Some(())
         }
 
         pub fn advance(&mut self, n: usize) {
@@ -155,7 +196,6 @@ pub mod tokenize {
             self.pos == self.input.len()
         }
     }
-
 }
 
 pub mod bitset {
