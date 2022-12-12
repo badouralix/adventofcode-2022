@@ -571,6 +571,30 @@ pub mod matrix {
         pub fn iter(&self) -> impl Iterator<Item = &T> {
             self.inner.iter()
         }
+
+        pub fn neighbors(
+            &self,
+            i: usize,
+            j: usize,
+        ) -> impl Iterator<Item = (usize, usize)> + 'static {
+            let dims = self.dims;
+            [
+                if i == 0 { None } else { Some((i - 1, j)) },
+                if i + 1 >= dims.0 {
+                    None
+                } else {
+                    Some((i + 1, j))
+                },
+                if j == 0 { None } else { Some((i, j - 1)) },
+                if j + 1 >= dims.1 {
+                    None
+                } else {
+                    Some((i, j + 1))
+                },
+            ]
+            .into_iter()
+            .flatten()
+        }
     }
 
     impl<T: Debug> Debug for Matrix<T> {
@@ -605,6 +629,45 @@ pub mod matrix {
     impl<T> IndexMut<(usize, usize)> for Matrix<T> {
         fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
             self.get_mut(index.0, index.1).unwrap()
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::Matrix;
+
+        #[test]
+        fn test_neighbors() {
+            let m = Matrix::from_vec(vec![0, 1, 2, 3, 5, 6, 7, 8, 9], 3).unwrap();
+
+            let mut n0 = m.neighbors(0, 0);
+            assert_eq!(n0.next(), Some((1, 0)));
+            assert_eq!(n0.next(), Some((0, 1)));
+            assert_eq!(n0.next(), None);
+
+            let mut n1 = m.neighbors(1, 0);
+            assert_eq!(n1.next(), Some((0, 0)));
+            assert_eq!(n1.next(), Some((2, 0)));
+            assert_eq!(n1.next(), Some((1, 1)));
+            assert_eq!(n1.next(), None);
+
+            let mut n2 = m.neighbors(2, 0);
+            assert_eq!(n2.next(), Some((1, 0)));
+            assert_eq!(n2.next(), Some((2, 1)));
+            assert_eq!(n2.next(), None);
+
+            let mut n3 = m.neighbors(1, 1);
+            assert_eq!(n3.next(), Some((0, 1)));
+            assert_eq!(n3.next(), Some((2, 1)));
+            assert_eq!(n3.next(), Some((1, 0)));
+            assert_eq!(n3.next(), Some((1, 2)));
+            assert_eq!(n3.next(), None);
+
+            let mut n4 = m.neighbors(1, 2);
+            assert_eq!(n4.next(), Some((0, 2)));
+            assert_eq!(n4.next(), Some((2, 2)));
+            assert_eq!(n4.next(), Some((1, 1)));
+            assert_eq!(n4.next(), None);
         }
     }
 }
