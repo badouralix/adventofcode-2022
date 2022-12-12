@@ -10,14 +10,14 @@ fn main() {
     println!("{}", output);
 }
 
-const MAX_ALTITUDE: u8 = u8::MAX - 1;
+const MAX_ALTITUDE: u8 = b'z' + 2;
+const VISITED_BIT: u8 = 0x80;
+const VALUE_MASK: u8 = !VISITED_BIT;
 
 #[derive(Debug)]
 struct Map {
     width: usize,
-    length: usize,
     elevation: Vec<u8>,
-    access_time: Vec<i32>,
     start: usize,
     end: usize,
 }
@@ -31,7 +31,6 @@ impl Map {
         let width = input.find('\n').unwrap() + 2;
         let length = (input.len() + 1) / (width - 1) + 2;
         let mut elevation = Vec::with_capacity(width * length);
-        let mut access_time = vec![-1; width * length];
         elevation.resize(width + 1, MAX_ALTITUDE);
         let mut start = 0;
         let mut end = 0;
@@ -41,7 +40,6 @@ impl Map {
                 elevation.push(MAX_ALTITUDE);
             } else if b == b'S' {
                 start = elevation.len();
-                access_time[start] = 0;
                 elevation.push(0);
             } else if b == b'E' {
                 end = elevation.len();
@@ -53,28 +51,25 @@ impl Map {
         elevation.resize(width * length, MAX_ALTITUDE);
         Self {
             width,
-            length,
             elevation,
-            access_time,
             start,
             end,
         }
     }
 
     fn solve(&mut self) -> i32 {
-        let mut stack = VecDeque::with_capacity((self.width - 2) * (self.length - 2));
-        stack.push_back(self.start);
-        while let Some(pos) = stack.pop_front() {
+        let mut stack = VecDeque::with_capacity(self.width);
+        stack.push_back((self.start, 0));
+        while let Some((pos, distance)) = stack.pop_front() {
             for n in self.neighbors(pos) {
-                if self.elevation[n] <= self.elevation[pos] + 1 {
-                    let new_route = self.access_time[pos] + 1;
-                    if self.access_time[n] < 0 || new_route < self.access_time[n] {
-                        if n == self.end {
-                            return new_route;
-                        }
-                        self.access_time[n] = new_route;
-                        stack.push_back(n)
+                if (self.elevation[n] & VALUE_MASK) <= (self.elevation[pos] & VALUE_MASK) + 1
+                    && self.elevation[n] & VISITED_BIT == 0
+                {
+                    if n == self.end {
+                        return distance + 1;
                     }
+                    self.elevation[n] |= VISITED_BIT;
+                    stack.push_back((n, distance + 1));
                 }
             }
         }
