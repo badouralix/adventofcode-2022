@@ -4,17 +4,6 @@ class DidipSubmission(SubmissionPy):
     def distance(self, head, tail):
         return max(abs(head[0] - tail[0]), abs(head[1] - tail[1]))
 
-    def update_tail(self, new_head, old_head, tail):
-        distance = self.distance(new_head, tail)
-        if distance == 2:  # Oh no we not touching anymore
-            new_tail = old_head
-
-            self.places_seen.add(new_tail)
-            return new_tail
-
-        return tail
-
-
     def run(self, s):
         """
         :param s: input in string format
