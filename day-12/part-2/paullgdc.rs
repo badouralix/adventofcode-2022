@@ -1,5 +1,5 @@
 use std::cmp::Reverse;
-use std::collections::BinaryHeap;
+use std::collections::VecDeque;
 use std::env::args;
 use std::time::Instant;
 
@@ -55,19 +55,19 @@ fn parse_heights(tokenizer: &mut Tokenizer) -> Option<Map> {
 }
 
 fn find_shortest_path(map: &Map) -> Option<u32> {
-    let mut queue = BinaryHeap::with_capacity(map.heights.dims.0 * map.heights.dims.1);
+    let mut queue = VecDeque::with_capacity(map.heights.dims.0 * map.heights.dims.1);
     let mut visited = map.heights.map(|_| false);
     for j in 0..map.heights.dims.1 {
         for i in 0..map.heights.dims.0 {
             if map.heights[(i, j)] == b'a' {
-                queue.push(Reverse((0, (i, j))));
+                queue.push_back(Reverse((0, (i, j))));
                 visited[(i, j)] = true;
             }
         }
     }
-    queue.push(Reverse((0, map.start)));
+    queue.push_back(Reverse((0, map.start)));
     visited[map.start] = true;
-    while let Some(Reverse((cost, (i, j)))) = queue.pop() {
+    while let Some(Reverse((cost, (i, j)))) = queue.pop_front() {
         let height = map.heights[(i, j)];
         for neigh in map.heights.neighbors(i, j) {
             if visited[neigh] || map.heights[neigh] > height + 1 {
@@ -77,7 +77,7 @@ fn find_shortest_path(map: &Map) -> Option<u32> {
                 return Some(cost + 1);
             }
             visited[neigh] = true;
-            queue.push(Reverse((cost + 1, neigh)));
+            queue.push_back(Reverse((cost + 1, neigh)));
         }
     }
     None
