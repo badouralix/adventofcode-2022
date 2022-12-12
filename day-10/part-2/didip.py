@@ -5,7 +5,6 @@ class DidipSubmission(SubmissionPy):
     @staticmethod
     def update_crt(crt, line, position, reg_x):
         if reg_x - 1 == position or reg_x == position or reg_x + 1 == position:
-            # print(position, cycle // 40)
             crt[line][position] = '#'
 
 
@@ -34,7 +33,6 @@ class DidipSubmission(SubmissionPy):
             else:
                 cycle += 1
 
-        # print('didip\n', '\n'.join(map(lambda e: ''.join(e), crt)))
         return '\n'.join(map(lambda e: ''.join(e), crt))
 
 
