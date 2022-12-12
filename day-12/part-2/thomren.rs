@@ -1,5 +1,4 @@
-use std::cmp::Reverse;
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::{HashSet, VecDeque};
 use std::env::args;
 use std::time::Instant;
 
@@ -14,21 +13,8 @@ fn main() {
 fn run(input: &str) -> usize {
     let height_map = HeightMap::new(input);
     let end = height_map.find(b'E').expect("Cannot find end");
-
-    let mut min = usize::MAX;
-    for i in 0..height_map.height {
-        for j in 0..height_map.width {
-            let pos = Position(i, j);
-            if height_map.get(pos) != b'a' as usize {
-                continue;
-            }
-            let get_neighbors = Box::new(|pos| height_map.get_neighbors(pos));
-            let dist = shortest_path(pos, end, get_neighbors).unwrap_or(usize::MAX);
-            min = min.min(dist);
-        }
-    }
-
-    min
+    let is_start = Box::new(|hm: &HeightMap, p: Position| hm.get(p) as u8 == b'a');
+    shortest_path(&height_map, end, is_start).expect("Cannot reach goal")
 }
 
 #[derive(Debug)]
@@ -64,67 +50,48 @@ impl<'a> HeightMap<'a> {
         Some(Position(x / (self.width + 1), x % (self.width + 1)))
     }
 
-    fn get_neighbors(&self, pos: Position) -> Vec<State> {
-        let mut res = Vec::new();
-        for (dx, dy) in [(0, 1), (1, 0), (0, -1), (-1, 0)] {
-            let (i, j) = (pos.0 as isize + dx, pos.1 as isize + dy);
-            if i < 0 || j < 0 || i as usize >= self.height || j as usize >= self.width {
-                continue;
-            }
-
-            let neighbor = Position(i as usize, j as usize);
-            if self.get(neighbor) <= 1 + self.get(pos) {
-                res.push(State {
-                    cost: 1,
-                    position: neighbor,
-                });
-            }
-        }
-        res
+    fn get_neighbors(&self, pos: Position) -> Vec<Position> {
+        let x = pos.0 as isize;
+        let y = pos.1 as isize;
+        [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+            .into_iter()
+            .filter(|&(i, j)| {
+                i >= 0
+                    && j >= 0
+                    && (i as usize) < self.height
+                    && (j as usize) < self.width
+                    && self.get(Position(i as usize, j as usize)) + 1 >= self.get(pos)
+            })
+            .map(|(i, j)| Position(i as usize, j as usize))
+            .collect()
     }
-}
-
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
-struct State {
-    cost: usize,
-    position: Position,
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 struct Position(usize, usize);
 
-fn shortest_path<'a>(
+#[allow(clippy::type_complexity)]
+fn shortest_path(
+    height_map: &HeightMap,
     start: Position,
-    end: Position,
-    get_neighbors: Box<dyn Fn(Position) -> Vec<State> + 'a>,
+    is_end: Box<dyn Fn(&HeightMap, Position) -> bool>,
 ) -> Option<usize> {
-    let mut dist: HashMap<Position, usize> = HashMap::new();
-    dist.insert(start, 0);
-    let mut heap = BinaryHeap::new();
-    heap.push(Reverse(State {
-        cost: 0,
-        position: start,
-    }));
+    let mut frontier = VecDeque::new();
+    let mut seen = HashSet::new();
+    frontier.push_back((0, start));
 
-    while let Some(Reverse(State { cost, position })) = heap.pop() {
-        if position == end {
-            return Some(cost);
+    while let Some((dist, position)) = frontier.pop_front() {
+        if is_end(height_map, position) {
+            return Some(dist);
         }
 
-        if cost > dist.get(&position).cloned().unwrap_or_default() {
+        if seen.contains(&position) {
             continue;
         }
+        seen.insert(position);
 
-        for neighbor in get_neighbors(position) {
-            let next = State {
-                cost: cost + neighbor.cost,
-                position: neighbor.position,
-            };
-
-            if next.cost < *dist.get(&next.position).unwrap_or(&std::usize::MAX) {
-                heap.push(Reverse(next));
-                dist.insert(next.position, next.cost);
-            }
+        for neighbor in height_map.get_neighbors(position) {
+            frontier.push_back((dist + 1, neighbor));
         }
     }
 
