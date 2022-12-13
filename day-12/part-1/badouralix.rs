@@ -3,17 +3,25 @@ use std::env::args;
 use std::time::Instant;
 
 #[derive(Debug)]
-struct Map<'a> {
-    rows: Vec<&'a [u8]>,
+struct Map {
+    rows: Vec<Vec<u8>>,
     height: usize,
     width: usize,
     start: (usize, usize),
     end: (usize, usize),
 }
 
-impl Map<'_> {
+impl Map {
     fn new_from_input(input: &str) -> Map {
-        let rows = input.lines().map(|line| line.as_bytes()).collect();
+        let rows = input
+            .lines()
+            .map(|line| {
+                line.replace('S', "a")
+                    .replace('E', "z")
+                    .as_bytes()
+                    .to_owned()
+            })
+            .collect();
         let height = input.matches('\n').count() + 1;
         let width = input.chars().position(|c| c == '\n').unwrap();
         let start = (
@@ -46,42 +54,26 @@ impl Map<'_> {
                 _ => {
                     distances[position.0][position.1] = Some(distance);
                     if position.0 > 0
-                        && (position == self.start
-                            || (self.rows[position.0 - 1][position.1] == b'E'
-                                && self.rows[position.0][position.1] >= b'y')
-                            || (self.rows[position.0 - 1][position.1] != b'E'
-                                && self.rows[position.0 - 1][position.1]
-                                    <= self.rows[position.0][position.1] + 1))
+                        && self.rows[position.0 - 1][position.1]
+                            <= self.rows[position.0][position.1] + 1
                     {
                         queue.push_back(((position.0 - 1, position.1), distance + 1));
                     }
                     if position.0 < self.height - 1
-                        && (position == self.start
-                            || (self.rows[position.0 + 1][position.1] == b'E'
-                                && self.rows[position.0][position.1] >= b'y')
-                            || (self.rows[position.0 + 1][position.1] != b'E'
-                                && self.rows[position.0 + 1][position.1]
-                                    <= self.rows[position.0][position.1] + 1))
+                        && self.rows[position.0 + 1][position.1]
+                            <= self.rows[position.0][position.1] + 1
                     {
                         queue.push_back(((position.0 + 1, position.1), distance + 1));
                     }
                     if position.1 > 0
-                        && (position == self.start
-                            || (self.rows[position.0][position.1 - 1] == b'E'
-                                && self.rows[position.0][position.1] >= b'y')
-                            || (self.rows[position.0][position.1 - 1] != b'E'
-                                && self.rows[position.0][position.1 - 1]
-                                    <= self.rows[position.0][position.1] + 1))
+                        && self.rows[position.0][position.1 - 1]
+                            <= self.rows[position.0][position.1] + 1
                     {
                         queue.push_back(((position.0, position.1 - 1), distance + 1));
                     }
                     if position.1 < self.width - 1
-                        && (position == self.start
-                            || (self.rows[position.0][position.1 + 1] == b'E'
-                                && self.rows[position.0][position.1] >= b'y')
-                            || (self.rows[position.0][position.1 + 1] != b'E'
-                                && self.rows[position.0][position.1 + 1]
-                                    <= self.rows[position.0][position.1] + 1))
+                        && self.rows[position.0][position.1 + 1]
+                            <= self.rows[position.0][position.1] + 1
                     {
                         queue.push_back(((position.0, position.1 + 1), distance + 1));
                     }
