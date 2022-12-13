@@ -12,13 +12,13 @@ fn main() {
 }
 
 fn run(input: &str) -> usize {
-    let p1: Packet = "[[2]]".parse().unwrap();
-    let p2: Packet = "[[6]]".parse().unwrap();
+    let p1 = Packet::new("[[2]]");
+    let p2 = Packet::new("[[6]]");
     let mut i1 = 1;
     let mut i2 = 2;
     for (i, l) in input.lines().enumerate() {
         if i % 3 != 2 {
-            let p: Packet = l.parse().unwrap();
+            let p = Packet::new(l);
             if p < p1 {
                 i1 += 1;
                 i2 += 1;
