@@ -17,9 +17,9 @@ fn run(input: &str) -> usize {
     let mut k = 1;
     for (i, l) in input.lines().enumerate() {
         match i % 3 {
-            0 => p1 = Packet::from_bytes(l.as_bytes()),
+            0 => p1 = l.parse().unwrap(),
             1 => {
-                p2 = Packet::from_bytes(l.as_bytes());
+                p2 = l.parse().unwrap();
                 if p1 < p2 {
                     res += k;
                 }

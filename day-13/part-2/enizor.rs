@@ -13,13 +13,13 @@ fn main() {
 
 fn run(input: &str) -> usize {
     let mut packets = Vec::new();
-    let p1 = Packet::from_bytes("[[2]]".as_bytes());
+    let p1: Packet = "[[2]]".parse().unwrap();
     packets.push(p1.clone());
-    let p2 = Packet::from_bytes("[[6]]".as_bytes());
+    let p2: Packet = "[[6]]".parse().unwrap();
     packets.push(p2.clone());
     for (i, l) in input.lines().enumerate() {
         match i % 3 {
-            0 | 1 => packets.push(Packet::from_bytes(l.as_bytes())),
+            0 | 1 => packets.push(l.parse().unwrap()),
             _ => {}
         }
     }
