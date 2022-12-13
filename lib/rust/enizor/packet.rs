@@ -47,17 +47,19 @@ impl Packet {
             Self::Scalar(v)
         }
     }
+}
 
-    fn impl_cmp(&self, other: &Self) -> Ordering {
+impl Ord for Packet {
+    fn cmp(&self, other: &Self) -> Ordering {
         match (self, other) {
             (Self::Scalar(x), Self::Scalar(y)) => x.cmp(y),
             (Self::Scalar(x), Self::List(_)) => {
                 let w = Self::List(vec![Self::Scalar(*x)]);
-                w.impl_cmp(other)
+                w.cmp(other)
             }
             (Self::List(_), Self::Scalar(y)) => {
                 let w = Self::List(vec![Self::Scalar(*y)]);
-                self.impl_cmp(&w)
+                self.cmp(&w)
             }
             (Self::List(v), Self::List(w)) => {
                 if v.is_empty() && w.is_empty() {
@@ -69,11 +71,11 @@ impl Packet {
                 } else {
                     let a = &v[0];
                     let b = &w[0];
-                    let c = a.impl_cmp(b);
+                    let c = a.cmp(b);
                     if c == Ordering::Equal {
                         let e = Self::List(v[1..].into());
                         let f = Self::List(w[1..].into());
-                        e.impl_cmp(&f)
+                        e.cmp(&f)
                     } else {
                         c
                     }
@@ -83,15 +85,9 @@ impl Packet {
     }
 }
 
-impl Ord for Packet {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.impl_cmp(other)
-    }
-}
-
 impl PartialOrd for Packet {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.impl_cmp(other))
+        Some(self.cmp(other))
     }
 }
 
@@ -99,7 +95,7 @@ impl Eq for Packet {}
 
 impl PartialEq for Packet {
     fn eq(&self, other: &Self) -> bool {
-        self.impl_cmp(other) == Ordering::Equal
+        self.cmp(other) == Ordering::Equal
     }
 }
 
