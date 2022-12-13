@@ -1,130 +1,131 @@
 use std::cmp::*;
 use std::fmt;
-use std::fmt::Write;
 
-#[derive(Clone)]
-pub enum Packet {
-    Scalar(usize),
-    List(Vec<Packet>),
+#[derive(Clone, Copy)]
+pub struct Packet<'a> {
+    bytes: &'a [u8],
 }
 
-impl Packet {
-    pub fn from_bytes(s: &[u8]) -> Self {
-        if s.is_empty() {
-            Self::List(Vec::new())
-        } else if s[0] == b'[' {
-            let mut res = Vec::new();
+impl<'a> Packet<'a> {
+    fn get_first(&self) -> Option<(Self, bool, usize)> {
+        if self.bytes.is_empty() {
+            None
+        } else if self.bytes[0] == b'[' {
+            let mut cur = 1;
             let mut depth = 1;
-            let mut cur1 = 1;
-            let mut cur2 = 1;
-            while cur2 < s.len() {
-                match s[cur2] {
+            while cur < self.bytes.len() {
+                match self.bytes[cur] {
                     b'[' => depth += 1,
                     b']' => {
                         depth -= 1;
                         if depth == 0 {
-                            res.push(Packet::from_bytes(&s[cur1..cur2]));
-                            cur1 = cur2 + 1;
-                        }
-                    }
-                    b',' => {
-                        if depth == 1 {
-                            res.push(Packet::from_bytes(&s[cur1..cur2]));
-                            cur1 = cur2 + 1;
+                            break;
                         }
                     }
                     _ => {}
                 }
-                cur2 += 1;
+                cur += 1;
             }
-            Self::List(res)
+            Some((
+                Packet {
+                    bytes: &self.bytes[1..cur],
+                },
+                false,
+                cur + 1,
+            ))
+        } else if self.bytes[0].is_ascii_digit() {
+            let mut cur = 1;
+            while cur < self.bytes.len() {
+                if !self.bytes[cur].is_ascii_digit() {
+                    break;
+                }
+                cur += 1;
+            }
+            Some((
+                Packet {
+                    bytes: &self.bytes[0..cur],
+                },
+                true,
+                cur,
+            ))
         } else {
-            let mut v = 0;
-            for &b in s {
-                v *= 10;
-                v += (b - b'0') as usize;
+            panic!()
+        }
+    }
+
+    fn split_first(&self) -> (Option<(Self, bool)>, Option<Self>) {
+        match self.get_first() {
+            None => (None, None),
+            Some((p, b, cur)) => {
+                if cur == self.bytes.len() {
+                    (Some((p, b)), None)
+                } else {
+                    (
+                        Some((p, b)),
+                        Some(Packet {
+                            bytes: &self.bytes[cur + 1..self.bytes.len()],
+                        }),
+                    )
+                }
             }
-            Self::Scalar(v)
+        }
+    }
+
+    pub fn new<'b: 'a>(s: &'b str) -> Self {
+        Self {
+            bytes: s.as_bytes(),
         }
     }
 }
 
-impl Ord for Packet {
+impl<'a> Ord for Packet<'a> {
     fn cmp(&self, other: &Self) -> Ordering {
-        match (self, other) {
-            (Self::Scalar(x), Self::Scalar(y)) => x.cmp(y),
-            (Self::Scalar(x), Self::List(_)) => {
-                let w = Self::List(vec![Self::Scalar(*x)]);
-                w.cmp(other)
-            }
-            (Self::List(_), Self::Scalar(y)) => {
-                let w = Self::List(vec![Self::Scalar(*y)]);
-                self.cmp(&w)
-            }
-            (Self::List(v), Self::List(w)) => {
-                if v.is_empty() && w.is_empty() {
-                    Ordering::Equal
-                } else if v.is_empty() {
-                    Ordering::Less
-                } else if w.is_empty() {
-                    Ordering::Greater
+        let a = self.split_first();
+        let b = other.split_first();
+        match (a.0, b.0) {
+            (None, None) => Ordering::Equal,
+            (Some(_), None) => Ordering::Greater,
+            (None, Some(_)) => Ordering::Less,
+            (Some((x, bx)), Some((y, by))) => {
+                let c = if bx && by {
+                    let x_int: usize = std::str::from_utf8(x.bytes).unwrap().parse().unwrap();
+                    let y_int: usize = std::str::from_utf8(y.bytes).unwrap().parse().unwrap();
+                    x_int.cmp(&y_int)
                 } else {
-                    let a = &v[0];
-                    let b = &w[0];
-                    let c = a.cmp(b);
-                    if c == Ordering::Equal {
-                        let e = Self::List(v[1..].into());
-                        let f = Self::List(w[1..].into());
-                        e.cmp(&f)
-                    } else {
-                        c
+                    x.cmp(&y)
+                };
+                if c == Ordering::Equal {
+                    match (a.1, b.1) {
+                        (None, None) => Ordering::Equal,
+                        (Some(_), None) => Ordering::Greater,
+                        (None, Some(_)) => Ordering::Less,
+                        (Some(e), Some(f)) => e.cmp(&f),
                     }
+                } else {
+                    c
                 }
             }
         }
     }
 }
 
-impl PartialOrd for Packet {
+impl<'a> PartialOrd for Packet<'a> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Eq for Packet {}
+impl<'a> Eq for Packet<'a> {}
 
-impl PartialEq for Packet {
+impl<'a> PartialEq for Packet<'a> {
     fn eq(&self, other: &Self) -> bool {
         self.cmp(other) == Ordering::Equal
     }
 }
 
-impl fmt::Debug for Packet {
+impl<'a> fmt::Debug for Packet<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Scalar(x) => f.write_str(&x.to_string())?,
-            Self::List(v) => {
-                f.write_char('[')?;
-                let mut first = true;
-                for p in v {
-                    if !first {
-                        f.write_char(',')?;
-                    } else {
-                        first = false;
-                    }
-                    p.fmt(f)?;
-                }
-                f.write_char(']')?
-            }
-        }
-        Ok(())
-    }
-}
-
-impl std::str::FromStr for Packet {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self::from_bytes(s.as_bytes()))
+        f.write_str(std::str::from_utf8(self.bytes).unwrap())
     }
 }
 
@@ -132,39 +133,39 @@ mod test {
     #[test]
     fn test() -> Result<(), ()> {
         use super::Packet;
-        let p1 = "[1,1,3,1,1]".parse::<Packet>()?;
-        let p2 = "[1,1,5,1,1]".parse::<Packet>()?;
+        let p1 = Packet::new("[1,1,3,1,1]");
+        let p2 = Packet::new("[1,1,5,1,1]");
 
         assert_eq!(p1, p1.clone());
         assert!(p1 < p2);
         assert!(p2 > p1);
         assert_eq!(format!("{:?}", p1), "[1,1,3,1,1]");
-        let p3 = "[[1],[2,3,4]]".parse::<Packet>()?;
-        let p4 = "[[1],4]".parse::<Packet>()?;
+        let p3 = Packet::new("[[1],[2,3,4]]");
+        let p4 = Packet::new("[[1],4]");
         assert!(p3 < p4);
         assert!(p4 > p3);
-        let p5 = "[9]".parse::<Packet>()?;
-        let p6 = "[[8,7,6]]".parse::<Packet>()?;
+        let p5 = Packet::new("[9]");
+        let p6 = Packet::new("[[8,7,6]]");
         assert!(p5 > p6);
         assert!(p6 < p5);
-        let p7 = "[[4,4],4,4]".parse::<Packet>()?;
-        let p8 = "[[4,4],4,4,4]".parse::<Packet>()?;
+        let p7 = Packet::new("[[4,4],4,4]");
+        let p8 = Packet::new("[[4,4],4,4,4]");
         assert!(p7 < p8);
         assert!(p8 > p7);
-        let p9 = "[7,7,7,7]".parse::<Packet>()?;
-        let p10 = "[7,7,7]".parse::<Packet>()?;
+        let p9 = Packet::new("[7,7,7,7]");
+        let p10 = Packet::new("[7,7,7]");
         assert!(p9 > p10);
         assert!(p10 < p9);
-        let p11 = "[]".parse::<Packet>()?;
-        let p12 = "[3]".parse::<Packet>()?;
+        let p11 = Packet::new("[]");
+        let p12 = Packet::new("[3]");
         assert!(p11 < p12);
         assert!(p12 > p11);
-        let p13 = "[[[]]]".parse::<Packet>()?;
-        let p14 = "[[]]".parse::<Packet>()?;
+        let p13 = Packet::new("[[[]]]");
+        let p14 = Packet::new("[[]]");
         assert!(p13 > p14);
         assert!(p14 < p13);
-        let p15 = "[1,[2,[3,[4,[5,6,7]]]],8,9]".parse::<Packet>()?;
-        let p16 = "[1,[2,[3,[4,[5,6,0]]]],8,9]".parse::<Packet>()?;
+        let p15 = Packet::new("[1,[2,[3,[4,[5,6,7]]]],8,9]");
+        let p16 = Packet::new("[1,[2,[3,[4,[5,6,0]]]],8,9]");
         assert_eq!(format!("{:?}", p16), "[1,[2,[3,[4,[5,6,0]]]],8,9]");
         assert!(p15 > p16);
         assert!(p16 < p15);
