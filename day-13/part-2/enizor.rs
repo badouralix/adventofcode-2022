@@ -12,21 +12,22 @@ fn main() {
 }
 
 fn run(input: &str) -> usize {
-    let mut packets = Vec::new();
     let p1: Packet = "[[2]]".parse().unwrap();
-    packets.push(p1.clone());
     let p2: Packet = "[[6]]".parse().unwrap();
-    packets.push(p2.clone());
+    let mut i1 = 1;
+    let mut i2 = 2;
     for (i, l) in input.lines().enumerate() {
-        match i % 3 {
-            0 | 1 => packets.push(l.parse().unwrap()),
-            _ => {}
+        if i % 3 != 2 {
+            let p: Packet = l.parse().unwrap();
+            if p < p1 {
+                i1 += 1;
+                i2 += 1;
+            } else if p < p2 {
+                i2 += 1;
+            }
         }
     }
-    packets.sort_unstable();
-    let i1 = packets.binary_search(&p1).unwrap();
-    let i2 = packets.binary_search(&p2).unwrap();
-    (i1 + 1) * (i2 + 1)
+    i1 * i2
 }
 
 #[cfg(test)]
