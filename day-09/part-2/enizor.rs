@@ -10,10 +10,15 @@ fn main() {
     println!("{}", output);
 }
 
+// Assume the rope stays in the square of size S centered on the initial position
+
 const S: usize = 1024;
-const N: usize = bitset_size(S * S);
-const OFFSET: isize = S as isize / 2;
-type Grid = ArrayBitSet<N>;
+const W: usize = S;
+const W_0: isize = -(S as isize) / 2;
+const L: usize = S;
+const L_O: isize = -(S as isize) / 2;
+const N: usize = bitset_size(W * L);
+type Grid = GridBitSet<N, W, W_0, L, L_O>;
 
 #[derive()]
 struct Rope {
@@ -43,12 +48,11 @@ impl Rope {
             self.links[i].0 += d.0;
             self.links[i].1 += d.1;
         }
-        self.grid
-            .set(((self.links[9].1 + OFFSET) as usize * S) + (self.links[9].0 + OFFSET) as usize);
+        self.grid.set(self.links[9]);
     }
 
     fn res(&self) -> u32 {
-        self.grid.count_ones()
+        self.grid.bitset.count_ones()
     }
 }
 
