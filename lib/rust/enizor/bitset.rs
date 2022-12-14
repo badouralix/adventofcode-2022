@@ -16,6 +16,12 @@ impl<const N: usize> ArrayBitSet<N> {
     }
 }
 
+impl<const N: usize> Default for ArrayBitSet<N> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub type VecBitSet = BitSet<Vec<u64>>;
 
 impl VecBitSet {
@@ -32,7 +38,6 @@ impl VecBitSet {
     }
 }
 
-#[derive(Clone, Default)]
 pub struct BitSet<T: AsMut<[u64]> + AsRef<[u64]>> {
     bits: T,
 }
@@ -104,6 +109,51 @@ impl<T: AsMut<[u64]> + AsRef<[u64]>> BitOrAssign for BitSet<T> {
         for i in 0..self.bits.as_ref().len() {
             self.bits.as_mut()[i] |= rhs.bits.as_ref()[i];
         }
+    }
+}
+
+/// A 2D-addressable bitset of width W length L
+/// with x spanning [W_0 , W + W_O)
+/// with y spanning [L_0 , L + W_O)
+/// N must be >= bitset_size(L*W)
+#[derive(Default)]
+pub struct GridBitSet<
+    const N: usize,
+    const W: usize,
+    const W_O: isize,
+    const L: usize,
+    const L_O: isize,
+> {
+    pub bitset: ArrayBitSet<N>,
+}
+
+impl<const N: usize, const W: usize, const W_O: isize, const L: usize, const L_O: isize>
+    GridBitSet<N, W, W_O, L, L_O>
+{
+    pub fn new() -> Self {
+        debug_assert!(N >= bitset_size(W * L));
+        Self {
+            bitset: ArrayBitSet::new(),
+        }
+    }
+
+    fn pos((x, y): (isize, isize)) -> usize {
+        debug_assert!(x - W_O >= 0);
+        debug_assert!(W > (x - W_O) as usize);
+        debug_assert!(y - L_O >= 0);
+        debug_assert!(L > (y - L_O) as usize);
+        (y - L_O) as usize * W + (x - W_O) as usize
+    }
+
+    pub fn test(&self, p: (isize, isize)) -> bool {
+        self.bitset.test(Self::pos(p))
+    }
+
+    pub fn set(&mut self, p: (isize, isize)) {
+        self.bitset.set(Self::pos(p))
+    }
+    pub fn reset(&mut self, p: (isize, isize)) {
+        self.bitset.reset(Self::pos(p))
     }
 }
 
