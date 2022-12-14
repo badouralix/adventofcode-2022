@@ -100,33 +100,22 @@ impl Packet {
 }
 
 fn run(input: &str) -> usize {
-    let mut packets = vec![Packet::Integer(2), Packet::Integer(6)];
-    let mut result = 1;
+    let mut idx_two = 0;
+    let mut idx_six = 1;
 
     for line in input.lines() {
         if !line.is_empty() {
             let packet = Packet::new_from_line(line);
-            for i in 0..packets.len() {
-                if Packet::less_or_dunno(&packet, &packets[i]).unwrap() {
-                    packets.insert(i, packet);
-                    break;
-                }
+            if Packet::less_or_dunno(&packet, &Packet::Integer(2)).unwrap() {
+                idx_two += 1;
+                idx_six += 1;
+            } else if Packet::less_or_dunno(&packet, &Packet::Integer(6)).unwrap() {
+                idx_six += 1;
             }
         }
     }
 
-    for (idx, packet) in packets.iter().enumerate() {
-        match packet {
-            Packet::Integer(2) => result *= idx + 1,
-            Packet::Integer(6) => {
-                result *= idx + 1;
-                break;
-            }
-            _ => {}
-        }
-    }
-
-    result
+    (idx_two + 1) * (idx_six + 1)
 }
 
 #[cfg(test)]
