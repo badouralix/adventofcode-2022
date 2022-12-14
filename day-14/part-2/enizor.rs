@@ -22,6 +22,8 @@ type Grid = GridBitSet<N, W, W_0, L, L_O>;
 struct Cave {
     /// A bit is set iff the corresponding position is occupied
     grid: Grid,
+    // A bit is set iff sand can fall into the corresponding position
+    accessible: Grid,
     /// used either as the position of the marker for drawing lines
     /// or to track the position of a falling sand block
     pos: (isize, isize),
@@ -49,32 +51,37 @@ impl Cave {
         x.min(y)..=x.max(y)
     }
 
-    /// returns true if the sand block stopped
-    fn drop_sand(&mut self) -> bool {
-        self.pos = (500, 0);
-        if self.grid.test(self.pos) {
-            return false;
+    fn try_place_sand(&mut self, x: isize, y: isize) {
+        if !self.grid.test((x, y))
+            && (self.accessible.test((x, y - 1))
+                || self.accessible.test((x - 1, y - 1))
+                || self.accessible.test((x + 1, y - 1)))
+        {
+            self.accessible.set((x, y));
         }
-        loop {
-            if !self.grid.test((self.pos.0, self.pos.1 + 1)) {
-                self.pos.1 += 1;
-            } else if !self.grid.test((self.pos.0 - 1, self.pos.1 + 1)) {
-                self.pos.1 += 1;
-                self.pos.0 -= 1;
-            } else if !self.grid.test((self.pos.0 + 1, self.pos.1 + 1)) {
-                self.pos.1 += 1;
-                self.pos.0 += 1;
-            } else {
-                self.grid.set(self.pos);
-                return true;
+    }
+
+    fn place_all_sand(&mut self) -> u32 {
+        self.accessible.set((500, 0));
+        let mut y = 0;
+        let mut x0 = 500;
+        let mut x1 = 500;
+        while y <= self.lowest {
+            y += 1;
+            x0 -= 1;
+            x1 += 1;
+            for x in x0..=x1 {
+                self.try_place_sand(x, y)
             }
         }
+        self.accessible.bitset.count_ones()
     }
 }
 
-fn run(input: &str) -> isize {
+fn run(input: &str) -> u32 {
     let mut cave = Cave {
         grid: Grid::new(),
+        accessible: Grid::new(),
         pos: (500, 0),
         lowest: 0,
     };
@@ -92,13 +99,7 @@ fn run(input: &str) -> isize {
             }
         }
     }
-    cave.set_pos((0, cave.lowest + 2));
-    cave.draw((W as isize - 1, cave.lowest + 2));
-    let mut res = 0;
-    while cave.drop_sand() {
-        res += 1;
-    }
-    res
+    cave.place_all_sand()
 }
 
 #[cfg(test)]
