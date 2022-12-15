@@ -28,81 +28,153 @@ fn manhattan_dist(x1: isize, y1: isize, x2: isize, y2: isize) -> isize {
     (x1 - x2).abs() + (y1 - y2).abs()
 }
 
-/// A collection of non-overlapping semi-open intervals [a, b[
-#[derive(Debug, Default)]
-struct IntervalCollection {
-    intervals: Vec<(isize, isize)>,
+/// A disk centerd on a sensor,
+/// representing an area where the missing beacon cannot be.
+#[derive(Debug, Clone, Copy)]
+struct Disk {
+    x: isize,
+    y: isize,
+    radius: isize,
 }
 
-impl IntervalCollection {
-    fn add_interval(&mut self, mut a: isize, mut b: isize) {
-        if a >= b {
-            return;
-        }
-        for (c, d) in &self.intervals.clone() {
-            if b <= *c || *d <= a {
-                // intervals do not overlap
-                continue;
-            }
-            match (*c <= a, b <= *d) {
-                (true, true) => return, // fully covered
-                (true, false) => a = *d,
-                (false, true) => b = *c,
-                (false, false) => {
-                    self.add_interval(a, *c);
-                    self.add_interval(*d, b);
-                    return;
+impl Disk {
+    fn contains(&self, p: (isize, isize)) -> bool {
+        manhattan_dist(p.0, p.1, self.x, self.y) <= self.radius
+    }
+
+    /// Constructs, if possible, the line neighboring both self and other
+    fn tangent(&self, other: &Self) -> Option<Tangent> {
+        let d = manhattan_dist(self.x, self.y, other.x, other.y);
+        if d == self.radius + other.radius + 2 {
+            let dx = (other.x - self.x).signum();
+            let dy = (other.y - self.y).signum();
+            if self.x == other.x {
+                Some(Tangent {
+                    start: (self.x, self.y + dy * (self.radius + 1)),
+                    end: (self.x, self.y + dy * (self.radius + 1)),
+                })
+            } else if self.y == other.y {
+                Some(Tangent {
+                    start: (self.x + dx * (self.radius + 1), self.y),
+                    end: (self.x + dx * (self.radius + 1), self.y),
+                })
+            } else {
+                let mut start = (self.x, self.y + dy * (self.radius + 1));
+                while manhattan_dist(other.x, other.y, start.0, start.1) > other.radius + 1 {
+                    start.0 += dx;
+                    start.1 -= dy;
                 }
+                let mut end = (self.x + dx * (self.radius + 1), self.y);
+                while manhattan_dist(other.x, other.y, end.0, end.1) > other.radius + 1 {
+                    end.0 -= dx;
+                    end.1 += dy;
+                }
+                Some(Tangent { start, end })
             }
-        }
-        if a < b {
-            self.intervals.push((a, b));
+        } else {
+            None
         }
     }
-    fn find(&self) -> isize {
-        let mut x = 0;
-        let mut moved = true;
-        while moved {
-            moved = false;
-            for &(a, b) in &self.intervals {
-                if a <= x && x < b {
-                    x = b;
-                    moved = true;
+}
+
+/// A line start -> end that is neighboring at least 2 disks
+#[derive(Debug, Clone, Copy)]
+struct Tangent {
+    start: (isize, isize),
+    end: (isize, isize),
+}
+
+impl Tangent {
+    fn direction(&self) -> (isize, isize) {
+        (
+            (self.end.0 - self.start.0).signum(),
+            (self.end.1 - self.start.1).signum(),
+        )
+    }
+
+    fn cut(&self, d: &Disk) -> Option<Tangent> {
+        match (d.contains(self.start), d.contains(self.end)) {
+            (true, true) => None,
+            (false, false) => Some(*self),
+            (true, false) => {
+                let dir = self.direction();
+                let mut start = self.start;
+                while d.contains(start) {
+                    start.0 += dir.0;
+                    start.1 += dir.1;
                 }
+                Some(Tangent {
+                    start,
+                    end: self.end,
+                })
+            }
+            (false, true) => {
+                let dir = self.direction();
+                let mut end = self.end;
+                while d.contains(end) {
+                    end.0 -= dir.0;
+                    end.1 -= dir.1;
+                }
+                Some(Tangent {
+                    start: self.start,
+                    end,
+                })
             }
         }
-        x
     }
 }
 
 fn run(input: &str, max: isize) -> isize {
-    let mut sensors = Vec::new();
+    let mut disks = Vec::new();
     for line in input.lines() {
-        let (x1, y1, x2, y2) = parse_line(line);
-        let d = manhattan_dist(x1, y1, x2, y2);
-        sensors.push((x1, y1, d));
+        let (x, y, x2, y2) = parse_line(line);
+        let radius = manhattan_dist(x, y, x2, y2);
+        // hypothesis: all sensors are in [0, max]
+        // => all tangents are inside [0, max]
+        assert!(x >= 0);
+        assert!(y >= 0);
+        assert!(x <= max);
+        assert!(y <= max);
+        disks.push(Disk { x, y, radius });
     }
-    let mut y = 0;
-    let x;
-    while y <= max {
-        let mut intervals = IntervalCollection::default();
-        for &(a, b, d) in &sensors {
-            let dy = (b - y).abs();
-            let l = d - dy;
-            intervals.add_interval(0.max(a - l), (max + 1).min(a + l + 1));
+    // if the solution is in ]0, max[
+    // then all of its neightbors are in a sensor's radius
+    // Since a given sensor disk can only cover two of its sides,
+    // it must be in a "Tangent" of two dofferent disks
+    for i in 0..disks.len() - 1 {
+        for j in i + 1..disks.len() {
+            let mut opt_tan = disks[i].tangent(&disks[j]);
+            let mut k = 0;
+            while opt_tan.is_some() && k < disks.len() {
+                opt_tan = opt_tan.unwrap().cut(&disks[k]);
+                k += 1;
+            }
+            if let Some(t) = opt_tan {
+                // sanity check unicity of solution
+                assert_eq!(t.start, t.end);
+                return t.start.0 * 4000000 + t.start.1;
+            }
         }
-        let mut res = 0;
-        for (a, b) in &intervals.intervals {
-            res += b - a;
-        }
-        if res != (max + 1) {
-            assert_eq!(res, max);
-            x = intervals.find();
-            return x * 4000000 + y;
-        }
-        y += 1;
     }
-    panic!()
+    // if the solution has only a single disk for neighbors
+    // then it covers only 2 sides
+    // the 2 others must be "covered" by the cave border -1 / max+1
+    // i.e. it's a corner
+    for x in [0, max] {
+        for y in [0, max] {
+            let mut solution = true;
+            for d in &disks {
+                if d.contains((x, y)) {
+                    solution = false;
+                    break;
+                }
+            }
+            if solution {
+                return x * 4000000 + y;
+            }
+        }
+    }
+    panic!("No solution was found :(")
 }
 
 #[cfg(test)]
