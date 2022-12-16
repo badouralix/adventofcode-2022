@@ -1,40 +1,45 @@
-use std::collections::HashSet;
 use std::env::args;
 use std::str::FromStr;
 use std::time::Instant;
 
 fn main() {
     let now = Instant::now();
-    let output = run(&args().nth(1).expect("Please provide an input"), 2000000);
+    let output = run(&args().nth(1).expect("Please provide an input"), 0, 4000000);
     let elapsed = now.elapsed();
     println!("_duration:{}", elapsed.as_secs_f64() * 1000.);
     println!("{}", output);
 }
 
-fn run(input: &str, y: isize) -> usize {
+fn run(input: &str, min: isize, max: isize) -> isize {
     let sensors = input
         .lines()
         .map(Sensor::from_str)
         .collect::<Result<Vec<Sensor>, _>>()
         .expect("Failed to parse input");
 
-    let mut covered_ranges: Vec<(isize, isize)> =
-        sensors.iter().filter_map(|s| s.covered_xslice(y)).collect();
-    covered_ranges.sort();
-    let merged_ranges = merge_ranges(&covered_ranges);
+    for y in min..=max {
+        let mut covered_ranges: Vec<(isize, isize)> =
+            sensors.iter().filter_map(|s| s.covered_xslice(y)).collect();
+        covered_ranges.sort();
+        let merged_ranges = merge_ranges(&covered_ranges);
 
-    let covered = merged_ranges
-        .iter()
-        .map(|&(from, to)| to - from + 1)
-        .sum::<isize>() as usize;
-    let n_sensors = sensors.iter().filter(|s| s.y == y).count();
-    let n_beacons = sensors
-        .iter()
-        .map(|s| s.closest_beacon)
-        .filter_map(|b| if b.1 == y { Some(b.0) } else { None })
-        .collect::<HashSet<isize>>()
-        .len();
-    covered - n_beacons - n_sensors
+        let covered = merged_ranges
+            .iter()
+            .filter(|&&(from, to)| from >= min || to <= max)
+            .count();
+        // there is a non-covered spot iff there is more than one contiguous covered range
+        if covered > 1 {
+            let ranges = merged_ranges
+                .into_iter()
+                .filter(|&(from, to)| from >= min || to <= max)
+                .collect::<Vec<(isize, isize)>>();
+            // the end of the first range + 1 is not covered (else it would have been merged with the following range)
+            let x = ranges[0].1 + 1;
+            return tuning_frequency(x, y);
+        }
+    }
+
+    0
 }
 
 fn merge_ranges(ranges: &Vec<(isize, isize)>) -> Vec<(isize, isize)> {
@@ -103,6 +108,10 @@ fn manhattan_dist(p: (isize, isize), q: (isize, isize)) -> usize {
     ((p.0 - q.0).abs() + (p.1 - q.1).abs()) as usize
 }
 
+fn tuning_frequency(x: isize, y: isize) -> isize {
+    4000000 * x + y
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -125,9 +134,10 @@ Sensor at x=17, y=20: closest beacon is at x=21, y=22
 Sensor at x=16, y=7: closest beacon is at x=15, y=3
 Sensor at x=14, y=3: closest beacon is at x=15, y=3
 Sensor at x=20, y=1: closest beacon is at x=15, y=3",
-                10
+                0,
+                20
             ),
-            26
+            56000011
         )
     }
 }
