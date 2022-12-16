@@ -1,18 +1,6 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::env::args;
 use std::time::Instant;
-
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-struct Beacon {
-    x: isize,
-    y: isize,
-}
-
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-struct Sensor {
-    x: isize,
-    y: isize,
-}
 
 fn main() {
     let now = Instant::now();
@@ -24,7 +12,8 @@ fn main() {
 
 fn run(input: &str, y: isize) -> isize {
     let mut beacons = HashSet::new();
-    let mut sensors = HashMap::new();
+    let mut sensors = Vec::new();
+    let mut distances = Vec::new();
 
     let mut min = 0;
     let mut max = 0;
@@ -32,38 +21,54 @@ fn run(input: &str, y: isize) -> isize {
     for line in input.lines() {
         let line = line.replace(['=', ',', ':'], " ");
         let split: Vec<&str> = line.split_whitespace().collect();
-        let sensor = Sensor {
-            x: split[3].parse().unwrap(),
-            y: split[5].parse().unwrap(),
-        };
-        let beacon = Beacon {
-            x: split[11].parse().unwrap(),
-            y: split[13].parse().unwrap(),
-        };
+        let sensor = (split[3].parse().unwrap(), split[5].parse().unwrap());
+        let beacon = (split[11].parse().unwrap(), split[13].parse().unwrap());
 
         beacons.insert(beacon);
-        sensors.insert(sensor, distance(sensor, beacon));
+        sensors.push(sensor);
+        distances.push(distance(sensor, beacon));
 
-        min = isize::min(min, sensor.x - sensors[&sensor] as isize);
-        max = isize::max(max, sensor.x + sensors[&sensor] as isize);
+        min = isize::min(
+            min,
+            1 + sensor.0 - distances[distances.len() - 1] as isize
+                + isize::abs_diff(y, sensor.1) as isize,
+        );
+        max = isize::max(
+            max,
+            1 + sensor.0 + distances[distances.len() - 1] as isize
+                - isize::abs_diff(y, sensor.1) as isize,
+        );
     }
 
     let mut result = 0;
-    for x in min..=max {
-        let beacon = Beacon { x, y };
-        for &sensor in sensors.keys() {
-            if distance(sensor, beacon) <= sensors[&sensor] && !beacons.contains(&beacon) {
-                result += 1;
+    let mut x = min;
+
+    while x <= max {
+        let beacon = (x, y);
+        for (idx, &sensor) in sensors.iter().enumerate() {
+            if distance(sensor, beacon) <= distances[idx] && !beacons.contains(&beacon) {
+                result += 2
+                    + sensor.0
+                    + (distances[idx] as isize - isize::abs_diff(y, sensor.1) as isize)
+                    - x;
+                x = 1
+                    + sensor.0
+                    + (distances[idx] as isize - isize::abs_diff(y, sensor.1) as isize);
+                if idx != 0 {
+                    sensors.swap(0, idx);
+                    distances.swap(0, idx);
+                }
                 break;
             }
         }
+        x += 1;
     }
 
-    result
+    result - 1
 }
 
-fn distance(sensor: Sensor, beacon: Beacon) -> usize {
-    isize::abs_diff(sensor.x, beacon.x) + isize::abs_diff(sensor.y, beacon.y)
+fn distance(sensor: (isize, isize), beacon: (isize, isize)) -> usize {
+    isize::abs_diff(sensor.0, beacon.0) + isize::abs_diff(sensor.1, beacon.1)
 }
 
 #[cfg(test)]

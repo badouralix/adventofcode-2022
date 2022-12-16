@@ -26,39 +26,33 @@ fn run(input: &str, max: isize) -> isize {
         distances.push(distance(sensor, beacon));
     }
 
-    let mut x = 0;
-    let mut y;
-    let mut beacon;
-    while x <= max {
-        y = 0;
+    for x in 0..=max {
+        let mut y = 0;
+
         'next: while y <= max {
-            beacon = (x, y);
+            let beacon = (x, y);
+
             for (idx, &sensor) in sensors.iter().enumerate() {
                 if distance(sensor, beacon) <= distances[idx] {
-                    y = 1 + isize::max(
-                        y,
-                        sensor.1
-                            + (distances[idx] as isize - isize::abs_diff(x, sensor.0) as isize),
-                    );
+                    y = 1
+                        + sensor.1
+                        + (distances[idx] as isize - isize::abs_diff(x, sensor.0) as isize);
 
                     if idx != 0 {
-                        // sensors.swap(0, idx);
-                        sensors[0..=idx].rotate_right(1);
-                        // distances.swap(0, idx);
-                        distances[0..=idx].rotate_right(1);
-                        // println!("{:?}", sensors);
+                        sensors.swap(0, idx);
+                        distances.swap(0, idx);
                     }
                     continue 'next;
                 }
             }
+
             if beacons.contains(&beacon) {
                 y += 1;
                 continue;
             }
+
             return x * 4_000_000 + y;
         }
-
-        x += 1;
     }
 
     unreachable!()
