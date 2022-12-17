@@ -8,7 +8,8 @@ ROCKS = (
     [[1, 1], [1, 1]],
 )
 WIDTH = 7
-N_ROCKS = 2022
+N_ROCKS = 1000000000000
+CYCLE_DETECTION_HEIGHT = 10
 
 
 class ThomrenSubmission(SubmissionPy):
@@ -20,6 +21,7 @@ class ThomrenSubmission(SubmissionPy):
         jets = [1 if c == ">" else -1 for c in s.strip()]
         tower = set()
         height = 0
+        seen = {}
         jet_idx = 0
         rock_idx = 0
 
@@ -60,6 +62,24 @@ class ThomrenSubmission(SubmissionPy):
                     if b == 1:
                         tower.add((x + j, z + len(rock) - 1 - i))
             height = max(z + len(rock), height)
+            state = (
+                jet_idx,
+                rock_idx,
+                pprint_tower(tower, height - CYCLE_DETECTION_HEIGHT, height + 1),
+            )
+            if state in seen:
+                old_height = height
+                cycle_len = r - seen[state][0]
+                cycle_height = height - seen[state][1]
+                n_cycles = (N_ROCKS - r) // cycle_len
+                height += cycle_height * n_cycles
+                r += cycle_len * n_cycles
+                for i in range(WIDTH):
+                    for z in range(old_height - CYCLE_DETECTION_HEIGHT, old_height + 1):
+                        if (i, z) in tower:
+                            tower.add((i, z + cycle_height * n_cycles))
+            seen[state] = (r, height)
+
         return height
 
 
@@ -76,6 +96,9 @@ def pprint_tower(tower, from_z, to_z):
 
 def test_thomren():
     """
-    Run `python -m pytest ./day-17/part-1/thomren.py` to test the submission.
+    Run `python -m pytest ./day-17/part-2/thomren.py` to test the submission.
     """
-    assert ThomrenSubmission().run(">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>") == 3068
+    assert (
+        ThomrenSubmission().run(">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>")
+        == 1514285714288
+    )
