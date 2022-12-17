@@ -128,29 +128,67 @@ Sensor ParseLine(const std::string& line) {
 std::string Run(const std::string& input) {
   // Your code goes here
   std::istringstream iss(input);
-  // std::map<int, std::set<int>> beacons_by_row;
   std::vector<Sensor> sensors;
+  std::set<int> diag1s;
+  std::set<int> diag1s_twice;
+  std::set<int> diag2s;
+  std::set<int> diag2s_twice;
   for (std::string line; std::getline(iss, line);) {
     Sensor sensor = ParseLine(line);
     sensors.emplace_back(sensor);
-    // if (!beacons_by_row.contains(sensor.beacon.first)) {
-    //   beacons_by_row.insert({sensor.beacon.first, {sensor.beacon.second}});
-    // } else {
-    //   beacons_by_row.at(sensor.beacon.first).insert(sensor.beacon.second);
-    // }
-  }
-  for (int row = kMinRow; row <= kMaxRow; ++row) {
-    std::vector<Range> ranges;
-    for (const Sensor& sensor : sensors) {
-      std::optional<Range> range = Project(sensor, row);
-      if (range != std::nullopt) {
-        ranges.emplace_back(*range);
-      }
+    int border = Distance(sensor.position, sensor.beacon) + 1;
+    int diag1_1 = sensor.position.second - border - sensor.position.first;
+    int diag1_2 = sensor.position.second + border - sensor.position.first;
+    int diag2_1 = sensor.position.second - border + sensor.position.first;
+    int diag2_2 = sensor.position.second + border + sensor.position.first;
+    if (diag1s.contains(diag1_1)) {
+      diag1s_twice.insert(diag1_1);
+    } else {
+      diag1s.insert(diag1_1);
     }
-    std::optional<int> col = FindEmpty(ranges);
-    if (col != std::nullopt) {
-      return std::to_string(static_cast<std::int64_t>(*col) * kFrequencyFactor +
-                            static_cast<std::int64_t>(row));
+    if (diag1s.contains(diag1_2)) {
+      diag1s_twice.insert(diag1_2);
+    } else {
+      diag1s.insert(diag1_2);
+    }
+    if (diag2s.contains(diag2_1)) {
+      diag2s_twice.insert(diag2_1);
+    } else {
+      diag2s.insert(diag2_1);
+    }
+    if (diag2s.contains(diag2_2)) {
+      diag2s_twice.insert(diag2_2);
+    } else {
+      diag2s.insert(diag2_2);
+    }
+  }
+  for (int diag1 : diag1s_twice) {
+    for (int diag2 : diag2s_twice) {
+      if ((diag1 + diag2) % 2 != 0) {
+        continue;
+      }
+      int x = (diag2 - diag1) / 2;
+      int y = (diag1 + diag2) / 2;
+      Pos beacon = {x, y};
+      if (diag1s_twice.size() == 1 && diag2s_twice.size() == 1) {
+        return std::to_string(static_cast<std::int64_t>(x) * kFrequencyFactor +
+                              static_cast<std::int64_t>(y));
+      }
+      if (x < kMinCol || kMaxCol < x || y < kMinRow || kMaxRow < y) {
+        continue;
+      }
+      bool is_valid = true;
+      for (const auto& sensor : sensors) {
+        if (Distance(sensor.position, beacon) <=
+            Distance(sensor.position, sensor.beacon)) {
+          is_valid = false;
+          break;
+        }
+      }
+      if (is_valid) {
+        return std::to_string(static_cast<std::int64_t>(x) * kFrequencyFactor +
+                              static_cast<std::int64_t>(y));
+      }
     }
   }
   exit(1);
