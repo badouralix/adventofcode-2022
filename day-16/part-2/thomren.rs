@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::collections::{BTreeSet, HashMap};
+use std::collections::HashMap;
 use std::env::args;
 use std::str::FromStr;
 use std::time::Instant;
@@ -36,18 +36,18 @@ fn run(input: &str) -> usize {
 struct State {
     minutes: usize,
     position: usize,
-    remaining_valves: BTreeSet<usize>,
+    remaining_valves: BitSet64,
     elephant: bool,
 }
 
 impl ValvesGraph {
-    fn nonzero_valves(&self) -> BTreeSet<usize> {
+    fn nonzero_valves(&self) -> BitSet64 {
         self.flows
             .iter()
             .enumerate()
             .filter(|&(_, f)| *f != 0)
             .map(|(i, _)| i)
-            .collect::<BTreeSet<usize>>()
+            .collect::<BitSet64>()
     }
 
     fn solve(&self, state: State) -> usize {
@@ -64,8 +64,8 @@ impl ValvesGraph {
         let res = state
             .remaining_valves
             .iter()
-            .filter(|&&valve| dist[state.position][valve] + 1 < state.minutes)
-            .map(|&valve| {
+            .filter(|&valve| dist[state.position][valve] + 1 < state.minutes)
+            .map(|valve| {
                 // try to open reachable valves next
                 *flows.get(valve).unwrap() * (state.minutes - dist[state.position][valve] - 1)
                     + self.solve(State {
@@ -73,9 +73,7 @@ impl ValvesGraph {
                         position: valve,
                         remaining_valves: state
                             .remaining_valves
-                            .difference(&BTreeSet::from_iter([valve]))
-                            .cloned()
-                            .collect::<BTreeSet<usize>>(),
+                            .difference(BitSet64::from_iter([valve])),
                         elephant: state.elephant,
                     })
             })
@@ -84,7 +82,7 @@ impl ValvesGraph {
                 [self.solve(State {
                     minutes: MINUTES,
                     position: *self.label_to_idx.get(START).unwrap(),
-                    remaining_valves: state.remaining_valves.clone(),
+                    remaining_valves: state.remaining_valves,
                     elephant: false,
                 })]
             } else {
@@ -153,6 +151,67 @@ impl FromStr for ValvesGraph {
             adjacency,
             label_to_idx,
         })
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+struct BitSet64 {
+    x: u64,
+}
+
+impl BitSet64 {
+    fn add(&mut self, n: usize) {
+        if n >= 64 {
+            panic!("BitSet64 can only contain values up to 63")
+        }
+        self.x |= 1 << n;
+    }
+
+    fn contains(&self, n: usize) -> bool {
+        if n >= 64 {
+            return false;
+        }
+        self.x >> n & 1 == 1
+    }
+
+    fn difference(&self, other: BitSet64) -> Self {
+        Self {
+            x: self.x & !other.x,
+        }
+    }
+
+    fn iter(&self) -> BitSet64Iter {
+        BitSet64Iter { bs: *self, cur: 0 }
+    }
+}
+
+impl FromIterator<usize> for BitSet64 {
+    fn from_iter<T: IntoIterator<Item = usize>>(iter: T) -> Self {
+        let mut res = Self { x: 0 };
+        for n in iter {
+            res.add(n);
+        }
+        res
+    }
+}
+struct BitSet64Iter {
+    bs: BitSet64,
+    cur: usize,
+}
+
+impl Iterator for BitSet64Iter {
+    type Item = usize;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.cur += 1;
+        while !self.bs.contains(self.cur) && self.cur < 64 {
+            self.cur += 1
+        }
+        if self.cur == 64 {
+            None
+        } else {
+            Some(self.cur)
+        }
     }
 }
 
