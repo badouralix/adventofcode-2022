@@ -3,6 +3,7 @@ use std::collections::{BTreeSet, HashMap};
 use std::env::args;
 use std::str::FromStr;
 use std::time::Instant;
+use std::vec;
 
 fn main() {
     let now = Instant::now();
@@ -12,19 +13,21 @@ fn main() {
     println!("{}", output);
 }
 
+const MINUTES: usize = 30;
+const START: &str = "AA";
+const HAS_ELEPHANT: bool = false;
+
+std::thread_local! {
+    static SOLVE_MEMO: RefCell<HashMap<State, usize>> = RefCell::new(HashMap::new());
+}
+
 fn run(input: &str) -> usize {
     let graph = ValvesGraph::from_str(input).unwrap();
-    let nonzero_valves = graph
-        .flows
-        .iter()
-        .enumerate()
-        .filter(|&(_, f)| *f != 0)
-        .map(|(i, _)| i)
-        .collect::<BTreeSet<usize>>();
     let start = State {
-        minutes: 30,
-        position: *graph.label_to_idx.get("AA").unwrap(),
-        remaining_valves: nonzero_valves,
+        minutes: MINUTES,
+        position: *graph.label_to_idx.get(START).unwrap(),
+        remaining_valves: graph.nonzero_valves(),
+        elephant: HAS_ELEPHANT,
     };
     graph.solve(start)
 }
@@ -34,16 +37,20 @@ struct State {
     minutes: usize,
     position: usize,
     remaining_valves: BTreeSet<usize>,
-}
-
-std::thread_local! {
-    static SOLVE_MEMO: RefCell<HashMap<State, usize>> = RefCell::new(HashMap::new());
+    elephant: bool,
 }
 
 impl ValvesGraph {
+    fn nonzero_valves(&self) -> BTreeSet<usize> {
+        self.flows
+            .iter()
+            .enumerate()
+            .filter(|&(_, f)| *f != 0)
+            .map(|(i, _)| i)
+            .collect::<BTreeSet<usize>>()
+    }
+
     fn solve(&self, state: State) -> usize {
-        let dist = &self.adjacency;
-        let flows = &self.flows;
         let r = SOLVE_MEMO.with(|hm| {
             let hm = hm.borrow_mut();
             hm.get(&state).cloned()
@@ -51,11 +58,15 @@ impl ValvesGraph {
         if let Some(p) = r {
             return p;
         };
+
+        let dist = &self.adjacency;
+        let flows = &self.flows;
         let res = state
             .remaining_valves
             .iter()
             .filter(|&&valve| dist[state.position][valve] + 1 < state.minutes)
             .map(|&valve| {
+                // try to open reachable valves next
                 *flows.get(valve).unwrap() * (state.minutes - dist[state.position][valve] - 1)
                     + self.solve(State {
                         minutes: state.minutes - dist[state.position][valve] - 1,
@@ -65,10 +76,23 @@ impl ValvesGraph {
                             .difference(&BTreeSet::from_iter([valve]))
                             .cloned()
                             .collect::<BTreeSet<usize>>(),
+                        elephant: state.elephant,
                     })
+            })
+            .chain(if state.elephant {
+                // the elve stops opening valves, the elephant handles the remaining ones
+                [self.solve(State {
+                    minutes: MINUTES,
+                    position: *self.label_to_idx.get(START).unwrap(),
+                    remaining_valves: state.remaining_valves.clone(),
+                    elephant: false,
+                })]
+            } else {
+                [0]
             })
             .max()
             .unwrap_or(0);
+
         SOLVE_MEMO.with(|hm| {
             let mut hm = hm.borrow_mut();
             hm.insert(state, res);
@@ -81,7 +105,6 @@ impl ValvesGraph {
 struct ValvesGraph {
     flows: Vec<usize>,
     adjacency: Vec<Vec<usize>>,
-    node_labels: Vec<String>,
     label_to_idx: HashMap<String, usize>,
 }
 
@@ -91,14 +114,12 @@ impl FromStr for ValvesGraph {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // Get all valves and their flow rate
         let mut label_to_idx: HashMap<String, usize> = HashMap::new();
-        let mut node_labels: Vec<String> = vec![];
         let mut flows: Vec<usize> = vec![];
         for line in s.lines() {
             let tokens = line.split(' ').collect::<Vec<&str>>();
             let node = tokens[1];
             let flow = tokens[4][5..tokens[4].len() - 1].parse::<usize>()?;
             label_to_idx.insert(node.to_string(), flows.len());
-            node_labels.push(node.to_string());
             flows.push(flow);
         }
 
@@ -130,7 +151,6 @@ impl FromStr for ValvesGraph {
         Ok(Self {
             flows,
             adjacency,
-            node_labels,
             label_to_idx,
         })
     }

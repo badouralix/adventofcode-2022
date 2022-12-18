@@ -13,13 +13,21 @@ fn main() {
     println!("{}", output);
 }
 
+const MINUTES: usize = 26;
+const START: &str = "AA";
+const HAS_ELEPHANT: bool = true;
+
+std::thread_local! {
+    static SOLVE_MEMO: RefCell<HashMap<State, usize>> = RefCell::new(HashMap::new());
+}
+
 fn run(input: &str) -> usize {
     let graph = ValvesGraph::from_str(input).unwrap();
     let start = State {
-        minutes: 26,
-        position: *graph.label_to_idx.get("AA").unwrap(),
+        minutes: MINUTES,
+        position: *graph.label_to_idx.get(START).unwrap(),
         remaining_valves: graph.nonzero_valves(),
-        is_elephant: true,
+        elephant: HAS_ELEPHANT,
     };
     graph.solve(start)
 }
@@ -29,11 +37,7 @@ struct State {
     minutes: usize,
     position: usize,
     remaining_valves: BTreeSet<usize>,
-    is_elephant: bool,
-}
-
-std::thread_local! {
-    static SOLVE_MEMO: RefCell<HashMap<State, usize>> = RefCell::new(HashMap::new());
+    elephant: bool,
 }
 
 impl ValvesGraph {
@@ -62,6 +66,7 @@ impl ValvesGraph {
             .iter()
             .filter(|&&valve| dist[state.position][valve] + 1 < state.minutes)
             .map(|&valve| {
+                // try to open reachable valves next
                 *flows.get(valve).unwrap() * (state.minutes - dist[state.position][valve] - 1)
                     + self.solve(State {
                         minutes: state.minutes - dist[state.position][valve] - 1,
@@ -71,18 +76,19 @@ impl ValvesGraph {
                             .difference(&BTreeSet::from_iter([valve]))
                             .cloned()
                             .collect::<BTreeSet<usize>>(),
-                        is_elephant: state.is_elephant,
+                        elephant: state.elephant,
                     })
             })
-            .chain(if state.is_elephant {
-                vec![self.solve(State {
-                    minutes: 26,
-                    position: *self.label_to_idx.get("AA").unwrap(),
+            .chain(if state.elephant {
+                // the elve stops opening valves, the elephant handles the remaining ones
+                [self.solve(State {
+                    minutes: MINUTES,
+                    position: *self.label_to_idx.get(START).unwrap(),
                     remaining_valves: state.remaining_valves.clone(),
-                    is_elephant: false,
+                    elephant: false,
                 })]
             } else {
-                vec![]
+                [0]
             })
             .max()
             .unwrap_or(0);
@@ -99,7 +105,6 @@ impl ValvesGraph {
 struct ValvesGraph {
     flows: Vec<usize>,
     adjacency: Vec<Vec<usize>>,
-    node_labels: Vec<String>,
     label_to_idx: HashMap<String, usize>,
 }
 
@@ -109,14 +114,12 @@ impl FromStr for ValvesGraph {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // Get all valves and their flow rate
         let mut label_to_idx: HashMap<String, usize> = HashMap::new();
-        let mut node_labels: Vec<String> = vec![];
         let mut flows: Vec<usize> = vec![];
         for line in s.lines() {
             let tokens = line.split(' ').collect::<Vec<&str>>();
             let node = tokens[1];
             let flow = tokens[4][5..tokens[4].len() - 1].parse::<usize>()?;
             label_to_idx.insert(node.to_string(), flows.len());
-            node_labels.push(node.to_string());
             flows.push(flow);
         }
 
@@ -148,7 +151,6 @@ impl FromStr for ValvesGraph {
         Ok(Self {
             flows,
             adjacency,
-            node_labels,
             label_to_idx,
         })
     }
