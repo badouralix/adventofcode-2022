@@ -1,3 +1,4 @@
+use aoc::thomren::bitset::BitSet64;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::env::args;
@@ -151,67 +152,6 @@ impl FromStr for ValvesGraph {
             adjacency,
             label_to_idx,
         })
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-struct BitSet64 {
-    x: u64,
-}
-
-impl BitSet64 {
-    fn add(&mut self, n: usize) {
-        if n >= 64 {
-            panic!("BitSet64 can only contain values up to 63")
-        }
-        self.x |= 1 << n;
-    }
-
-    fn contains(&self, n: usize) -> bool {
-        if n >= 64 {
-            return false;
-        }
-        self.x >> n & 1 == 1
-    }
-
-    fn difference(&self, other: BitSet64) -> Self {
-        Self {
-            x: self.x & !other.x,
-        }
-    }
-
-    fn iter(&self) -> BitSet64Iter {
-        BitSet64Iter { bs: *self, cur: 0 }
-    }
-}
-
-impl FromIterator<usize> for BitSet64 {
-    fn from_iter<T: IntoIterator<Item = usize>>(iter: T) -> Self {
-        let mut res = Self { x: 0 };
-        for n in iter {
-            res.add(n);
-        }
-        res
-    }
-}
-struct BitSet64Iter {
-    bs: BitSet64,
-    cur: usize,
-}
-
-impl Iterator for BitSet64Iter {
-    type Item = usize;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.cur += 1;
-        while !self.bs.contains(self.cur) && self.cur < 64 {
-            self.cur += 1
-        }
-        if self.cur == 64 {
-            None
-        } else {
-            Some(self.cur)
-        }
     }
 }
 
