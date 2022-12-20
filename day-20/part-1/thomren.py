@@ -9,44 +9,16 @@ class ThomrenSubmission(SubmissionPy):
         :param s: input in string format
         :return: solution flag
         """
-        it = map(int, s.splitlines())
-        nodes = [Node(next(it), None, None)]
-        for n in it:
-            node = Node(n, nodes[-1], None)
-            nodes[-1].after = node
-            nodes.append(node)
-        nodes[-1].after = nodes[0]
-        nodes[0].prev = nodes[-1]
+        seq = list(map(int, s.splitlines()))
+        indices = list(range(len(seq)))
 
-        for node in nodes:
-            node.prev.after = node.after
-            node.after.prev = node.prev
-            x, y = node.prev, node.after
-            for _ in range(node.value % (len(nodes) - 1)):
-                x, y = x.after, y.after
-            x.after = node
-            node.prev = x
-            node.after = y
-            y.prev = node
+        for i in range(len(seq)):
+            pos = indices.index(i)
+            indices.pop(pos)
+            indices.insert((pos + seq[i]) % (len(seq) - 1), i)
 
-        node = nodes[0]
-        while node.value != 0:
-            node = node.after
-
-        res = 0
-        for _ in range(3):
-            for _ in range(1000):
-                node = node.after
-            res += node.value
-
-        return res
-
-
-@dataclass
-class Node:
-    value: int
-    prev: Optional["Node"]
-    after: Optional["Node"]
+        pos = indices.index(seq.index(0))
+        return sum(seq[indices[(pos + k * 1000) % len(seq)]] for k in [1, 2, 3])
 
 
 def test_thomren():
