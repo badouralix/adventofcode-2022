@@ -8,7 +8,7 @@
 #include <tuple>
 #include <vector>
 
-inline constexpr int kSide = 20;
+inline constexpr int kSide = 22;
 inline constexpr int kYBase = kSide;
 inline constexpr int kZBase = kSide * kSide;
 
