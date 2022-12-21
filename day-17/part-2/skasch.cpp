@@ -99,16 +99,32 @@ struct GlobalState {
   int previous_rock_drop;
 };
 
+std::ostream& operator<<(std::ostream& out, const GlobalState& state) {
+  out << "Prototype index: " << state.prototypes.GetIndex()
+      << " | Jet streams index: " << state.jet_streams.GetIndex()
+      << " | Tower height: " << state.tower.size()
+      << " | Rock index: " << state.rock_index
+      << " | Previous rock index: " << state.previous_rock_index
+      << " | Additional height: " << state.additional_height
+      << " | Previous tower height: " << state.previous_tower_height
+      << " | Previous prototype height: " << state.previous_prototype_index
+      << " | Previous rock drop: " << state.previous_rock_drop;
+  return out;
+}
+
 void LateralMove(GlobalState& state, Rock& rock, const Move& move,
                  int base_height) {
   Shape moved_shape;
+  bool set_shape = true;
   for (int index = 0; index < rock.shape.size(); ++index) {
     Row& row = rock.shape.at(index);
     if (move == '<' && (row & kLeftWall) != 0) {
-      return;
+      set_shape = false;
+      break;
     }
     if (move == '>' && (row & kRightWall) != 0) {
-      return;
+      set_shape = false;
+      break;
     }
     Row moved_row = kMoveMap.at(move)(row);
     moved_shape.emplace_back(moved_row);
@@ -116,10 +132,13 @@ void LateralMove(GlobalState& state, Rock& rock, const Move& move,
       continue;
     }
     if ((state.tower.at(rock.height + index) & moved_row) != 0) {
-      return;
+      set_shape = false;
+      break;
     }
   }
-  rock.shape = std::move(moved_shape);
+  if (set_shape) {
+    rock.shape = std::move(moved_shape);
+  }
   if (state.jet_streams.GetIndex() == 0) {
     if (state.prototypes.GetIndex() == state.previous_prototype_index &&
         base_height - rock.height == state.previous_rock_drop) {
@@ -175,7 +194,7 @@ std::string Run(const std::string& input) {
                        0,
                        0,
                        1,
-                       0,
+                       -1,
                        0};
   for (; state.rock_index < kCountRocks; ++state.rock_index) {
     Rock rock = {state.prototypes.Next(),
