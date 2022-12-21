@@ -65,6 +65,10 @@ class Blueprint:
             if minutes == 0:
                 continue
 
+            # if we stop building robots until the end
+            passive_geodes = geodes + geode_robots * minutes
+            best = max(best, passive_geodes)
+
             # no need to build more robots that what can be consumed in one minute
             if ore_robots < self.max_ore_cost:
                 missing_ore = max(0, self.ore_ore_cost - ore)
@@ -176,4 +180,13 @@ Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsid
 """.strip()
         )
         == 33
+    )
+
+    assert (
+        ThomrenSubmission().run(
+            """
+"Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 7 clay. Each geode robot costs 2 ore and 7 obsidian."
+""".strip()
+        )
+        == 13
     )
