@@ -2,14 +2,16 @@ from tool.runners.python import SubmissionPy
 
 from collections import deque
 import re
+import math
 
 
 class Blueprint:
     # order of costs, robots, stocks: ore, clay, obsidian, geode
-    def __init__(self, costs, robots, stocks):
+    def __init__(self, costs, robots, stocks, t):
         self.costs = costs
         self.robots = robots  # [1, 0, 0, 0]
         self.stocks = stocks  # [0, 0, 0, 0]
+        self.t = t
 
         # Useless to have more robots than what can be built in 1min
         self.max_ore_robots = sum(cost[0] for cost in self.costs)
@@ -17,103 +19,139 @@ class Blueprint:
         self.max_obsidian_robots = self.costs[3][2]
 
     def __eq__(self, other):
-        return self.robots == other.robots and self.stocks == other.stocks
+        return (
+            self.t == other.t
+            and self.robots == other.robots
+            and self.stocks == other.stocks
+        )
 
     def __hash__(self):
-        return hash((frozenset(self.robots), frozenset(self.stocks)))
+        return hash((self.t, frozenset(self.robots), frozenset(self.stocks)))
 
     def __str__(self):
-        return "robots: {} - stocks: {}".format(self.robots, self.stocks)
+        return "t={} - robots: {} - stocks: {}".format(self.t, self.robots, self.stocks)
 
-    def upper_bound(self, t, max_time):
-        time_left = max_time - t
+    def upper_bound(self, max_time):
+        time_left = max_time - self.t
         return (
             # current stock
             self.stocks[-1]
             # what current robots will produce in the time left
             + self.robots[-1] * time_left
             # best case: we build a geode robot each minute
-            + time_left * (time_left - 1) // 2
+            + (time_left * (time_left - 1)) // 2
         )
 
-    def possible_moves_for_the_minute(self):
-        # each existing robot can harvest 1 resource
-        updated_stocks = [sum(x) for x in zip(self.stocks, self.robots)]
-
+    def possible_moves_for_the_minute(self, max_time):
         next_blueprints = []
 
-        can_build_geode_robot = (
-            self.stocks[0] >= self.costs[3][0] and self.stocks[2] >= self.costs[3][2]
-        )
-        if can_build_geode_robot:
-            robots = self.robots[:]
-            robots[3] += 1
-            stocks = updated_stocks[:]
-            stocks[0] -= self.costs[3][0]
-            stocks[2] -= self.costs[3][2]
-            next_blueprint = Blueprint(self.costs, robots, stocks)
-            next_blueprints.append(next_blueprint)
+        if self.robots[2] > 0:
+            nb_minutes_for_geode_robot = max(
+                0,
+                math.ceil((self.costs[3][0] - self.stocks[0]) / self.robots[0]),
+                math.ceil((self.costs[3][2] - self.stocks[2]) / self.robots[2]),
+            )
+            if self.t + nb_minutes_for_geode_robot < max_time:
+                robots = self.robots[:]
+                stocks = [
+                    stock + (1 + nb_minutes_for_geode_robot) * self.robots[i]
+                    for i, stock in enumerate(self.stocks)
+                ]
+                robots[3] += 1
+                stocks[0] = stocks[0] - self.costs[3][0]
+                stocks[2] = stocks[2] - self.costs[3][2]
+                next_blueprint = Blueprint(
+                    self.costs, robots, stocks, self.t + 1 + nb_minutes_for_geode_robot
+                )
+                next_blueprints.append(next_blueprint)
 
-        next_blueprints.append(Blueprint(self.costs, self.robots[:], updated_stocks[:]))
+        if self.robots[2] < self.max_obsidian_robots and self.robots[1] > 0:
+            nb_minutes_for_obsidian_robot = max(
+                0,
+                math.ceil((self.costs[2][0] - self.stocks[0]) / self.robots[0]),
+                math.ceil((self.costs[2][1] - self.stocks[1]) / self.robots[1]),
+            )
+            if self.t + nb_minutes_for_obsidian_robot < max_time:
+                robots = self.robots[:]
+                stocks = [
+                    stock + (1 + nb_minutes_for_obsidian_robot) * self.robots[i]
+                    for i, stock in enumerate(self.stocks)
+                ]
+                robots[2] += 1
+                stocks[0] = stocks[0] - self.costs[2][0]
+                stocks[1] = stocks[1] - self.costs[2][1]
+                next_blueprint = Blueprint(
+                    self.costs,
+                    robots,
+                    stocks,
+                    self.t + 1 + nb_minutes_for_obsidian_robot,
+                )
+                next_blueprints.append(next_blueprint)
 
-        can_build_obsidian_robot = (
-            self.robots[2] < self.max_obsidian_robots
-            and self.stocks[0] >= self.costs[2][0]
-            and self.stocks[1] >= self.costs[2][1]
-        )
-        if can_build_obsidian_robot:
-            robots = self.robots[:]
-            robots[2] += 1
-            stocks = updated_stocks[:]
-            stocks[0] -= self.costs[2][0]
-            stocks[1] -= self.costs[2][1]
-            next_blueprint = Blueprint(self.costs, robots, stocks)
-            next_blueprints.append(next_blueprint)
+        if self.robots[1] < self.max_clay_robots:
+            nb_minutes_for_clay_robot = max(
+                0,
+                math.ceil((self.costs[1][0] - self.stocks[0]) / self.robots[0]),
+            )
+            if self.t + nb_minutes_for_clay_robot < max_time:
+                robots = self.robots[:]
+                stocks = [
+                    stock + (1 + nb_minutes_for_clay_robot) * self.robots[i]
+                    for i, stock in enumerate(self.stocks)
+                ]
+                robots[1] += 1
+                stocks[0] = stocks[0] - self.costs[1][0]
+                next_blueprint = Blueprint(
+                    self.costs, robots, stocks, self.t + 1 + nb_minutes_for_clay_robot
+                )
+                next_blueprints.append(next_blueprint)
 
-        can_build_clay_robot = (
-            self.robots[1] < self.max_clay_robots and self.stocks[0] >= self.costs[1][0]
-        )
-        if can_build_clay_robot:
-            robots = self.robots[:]
-            robots[1] += 1
-            stocks = updated_stocks[:]
-            stocks[0] -= self.costs[1][0]
-            next_blueprint = Blueprint(self.costs, robots, stocks)
-            next_blueprints.append(next_blueprint)
-
-        can_build_ore_robot = (
-            self.robots[0] < self.max_ore_robots and self.stocks[0] >= self.costs[0][0]
-        )
-        if can_build_ore_robot:
-            robots = self.robots[:]
-            robots[0] += 1
-            stocks = updated_stocks[:]
-            stocks[0] -= self.costs[0][0]
-            next_blueprint = Blueprint(self.costs, robots, stocks)
-            next_blueprints.append(next_blueprint)
+        if self.robots[0] < self.max_ore_robots:
+            nb_minutes_for_ore_robot = max(
+                0,
+                math.ceil((self.costs[0][0] - self.stocks[0]) / self.robots[0]),
+            )
+            if self.t + nb_minutes_for_ore_robot < max_time:
+                robots = self.robots[:]
+                stocks = [
+                    stock + (1 + nb_minutes_for_ore_robot) * self.robots[i]
+                    for i, stock in enumerate(self.stocks)
+                ]
+                robots[0] += 1
+                stocks[0] = stocks[0] - self.costs[0][0]
+                next_blueprint = Blueprint(
+                    self.costs, robots, stocks, self.t + 1 + nb_minutes_for_ore_robot
+                )
+                next_blueprints.append(next_blueprint)
 
         return next_blueprints
 
 
-def bfs(root_blueprint, max_time=24):
+def get_max_geodes(root_blueprint, max_time=24):
     q = deque()
     seen = set()
-    seen.add((0, root_blueprint))
-    q.append((0, root_blueprint))
+    seen.add(root_blueprint)
+    q.append(root_blueprint)
     current_max = 0
     while q:
-        t, blueprint = q.popleft()
-        if t >= max_time:
+        blueprint = q.popleft()
+        if blueprint.t >= max_time:
             current_max = max(current_max, blueprint.stocks[-1])
             continue
 
-        for next_blueprint in blueprint.possible_moves_for_the_minute():
+        # if we stop building robots
+        current_max = max(
+            current_max,
+            blueprint.stocks[-1] + (max_time - blueprint.t) * blueprint.robots[-1],
+        )
+
+        for next_blueprint in blueprint.possible_moves_for_the_minute(max_time):
             if (
-                next_blueprint.upper_bound(t + 1, max_time) > current_max
-                and (t + 1, next_blueprint) not in seen
+                next_blueprint.upper_bound(max_time) > current_max
+                and next_blueprint not in seen
             ):
-                seen.add((t + 1, next_blueprint))
-                q.appendleft((t + 1, next_blueprint))
+                seen.add(next_blueprint)
+                q.appendleft(next_blueprint)
 
     return current_max
 
@@ -137,8 +175,8 @@ class ThChSubmission(SubmissionPy):
                 [int(matches.group(4)), int(matches.group(5)), 0],
                 [int(matches.group(6)), 0, int(matches.group(7))],
             ]
-            blueprint = Blueprint(costs, [1, 0, 0, 0], [0, 0, 0, 0])
-            quality_level = bfs(blueprint)
+            blueprint = Blueprint(costs, [1, 0, 0, 0], [0, 0, 0, 0], 0)
+            quality_level = get_max_geodes(blueprint)
             quality_levels += blueprint_id * quality_level
 
         return quality_levels

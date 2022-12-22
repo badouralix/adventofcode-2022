@@ -18,15 +18,14 @@ class ThChSubmission(SubmissionPy):
                 r"Blueprint (\d+): Each ore robot costs (\d+) ore. Each clay robot costs (\d+) ore. Each obsidian robot costs (\d+) ore and (\d+) clay. Each geode robot costs (\d+) ore and (\d+) obsidian.",
                 line,
             )
-            blueprint_id = int(matches.group(1))
             costs = [
                 [int(matches.group(2)), 0, 0],
                 [int(matches.group(3)), 0, 0],
                 [int(matches.group(4)), int(matches.group(5)), 0],
                 [int(matches.group(6)), 0, int(matches.group(7))],
             ]
-            blueprint = part1.Blueprint(costs, [1, 0, 0, 0], [0, 0, 0, 0])
-            quality_level = part1.bfs(blueprint, max_time=32)
+            blueprint = part1.Blueprint(costs, [1, 0, 0, 0], [0, 0, 0, 0], 0)
+            quality_level = part1.get_max_geodes(blueprint, max_time=32)
             multiplied *= quality_level
 
         return multiplied
