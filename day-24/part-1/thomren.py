@@ -1,4 +1,6 @@
 from collections import defaultdict, deque
+import functools
+import heapq
 from typing import Deque, Dict, List, Tuple
 from tool.runners.python import SubmissionPy
 
@@ -24,23 +26,42 @@ class ThomrenSubmission(SubmissionPy):
             for y in range(1, width + 1)
             if lines[x][y] in ">^v<"
         }
-        # print(start, end)
 
-        queue: Deque[Tuple[int, Coord2D, BlizzardsMap]] = deque([(0, start, blizzards)])
+        # memoize the blizzard states at each minute
+        @functools.cache
+        def get_blizzard(minute: int) -> BlizzardsMap:
+            if minute == -1:
+                return blizzards
+            return blizzards_move(get_blizzard(minute - 1), height, width)
+
+        # A* algorithm with manhattan distance heuristic to find the shortest path
+        queue: List[Tuple[int, int, Coord2D]] = [(manhattan_dist(start, end), 0, start)]
+        seen = set()
         while len(queue) > 0:
-            dist, pos, blizzards = queue.popleft()
-            # print(dist, pos)
+            _, dist, pos = heapq.heappop(queue)
+
             if pos == end:
                 return dist
 
-            blizzards = blizzards_move(blizzards, height, width)
+            if (dist, pos) in seen:
+                continue
+            seen.add((dist, pos))
+
+            blizzards = get_blizzard(dist)
             for (dx, dy) in [(0, 0), (0, -1), (-1, 0), (1, 0), (0, 1)]:
                 x = pos[0] + dx
                 y = pos[1] + dy
                 if (x, y) not in blizzards and (
                     0 <= x < height and 0 <= y < width or (x, y) in (start, end)
                 ):
-                    queue.append((dist + 1, (x, y), blizzards))
+                    heapq.heappush(
+                        queue,
+                        (
+                            dist + 1 + manhattan_dist(pos, end),
+                            dist + 1,
+                            (x, y),
+                        ),
+                    )
 
         return 1
 
@@ -53,6 +74,10 @@ def blizzards_move(blizzards: BlizzardsMap, height: int, width: int) -> Blizzard
             next_y = (y + dy) % width
             next_blizzards[(next_x, next_y)].append((dx, dy))
     return next_blizzards
+
+
+def manhattan_dist(p: Coord2D, q: Coord2D) -> int:
+    return sum(abs(a - b) for a, b in zip(p, q))
 
 
 def test_thomren():
