@@ -34,18 +34,35 @@ class ThomrenSubmission(SubmissionPy):
                 return blizzards
             return blizzards_move(get_blizzard(minute - 1), height, width)
 
+        def heuristic(pos: Coord2D, trip: int) -> int:
+            if trip == 0:  # first outward trip
+                return manhattan_dist(pos, end) + 2 * manhattan_dist(start, end)
+            elif trip == 1:  # return trip
+                return manhattan_dist(pos, start) + manhattan_dist(start, end)
+            elif trip == 2:  # second outward trip
+                return manhattan_dist(pos, end)
+            else:
+                raise ValueError("invalid trip number")
+
         # A* algorithm with manhattan distance heuristic to find the shortest path
-        queue: List[Tuple[int, int, Coord2D]] = [(manhattan_dist(start, end), 0, start)]
+        queue: List[Tuple[int, int, Coord2D, int]] = [
+            (heuristic(start, 0), 0, start, 0)
+        ]
         seen = set()
+        best_bound = {}
         while len(queue) > 0:
-            _, minute, pos = heapq.heappop(queue)
+            _, minute, pos, trip = heapq.heappop(queue)
 
-            if pos == end:
-                return minute
-
-            if (minute, pos) in seen:
+            if (minute, pos, trip) in seen:
                 continue
-            seen.add((minute, pos))
+            seen.add((minute, pos, trip))
+
+            if pos == end and trip == 2:
+                return minute
+            elif trip % 2 == 0 and pos == end:
+                trip += 1
+            elif trip % 2 == 1 and pos == start:
+                trip += 1
 
             blizzards = get_blizzard(minute)
             for (dx, dy) in [(0, 0), (0, -1), (-1, 0), (1, 0), (0, 1)]:
@@ -54,14 +71,18 @@ class ThomrenSubmission(SubmissionPy):
                 if (x, y) not in blizzards and (
                     0 <= x < height and 0 <= y < width or (x, y) in (start, end)
                 ):
-                    heapq.heappush(
-                        queue,
-                        (
-                            minute + 1 + manhattan_dist(pos, end),
-                            minute + 1,
-                            (x, y),
-                        ),
-                    )
+                    bound = minute + 1 + heuristic(pos, trip)
+                    if bound < best_bound.get((minute + 1, (x, y), trip), float("inf")):
+                        heapq.heappush(
+                            queue,
+                            (
+                                bound,
+                                minute + 1,
+                                (x, y),
+                                trip,
+                            ),
+                        )
+                        best_bound[(minute + 1, (x, y), trip)] = bound
 
         return 1
 
@@ -82,7 +103,7 @@ def manhattan_dist(p: Coord2D, q: Coord2D) -> int:
 
 def test_thomren():
     """
-    Run `python -m pytest ./day-24/part-1/thomren.py` to test the submission.
+    Run `python -m pytest ./day-24/part-2/thomren.py` to test the submission.
     """
     assert (
         ThomrenSubmission().run(
@@ -94,5 +115,5 @@ def test_thomren():
 ######.#
 """.strip()
         )
-        == 18
+        == 54
     )
