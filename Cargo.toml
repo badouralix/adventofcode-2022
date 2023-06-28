@@ -553,3 +553,11 @@ path = "./day-15/part-1/badouralix.rs"
 [[bin]]
 name = "day-15-part-2-badouralix"
 path = "./day-15/part-2/badouralix.rs"
+
+[[bin]]
+name = "day-17-part-1-badouralix"
+path = "./day-17/part-1/badouralix.rs"
+
+[[bin]]
+name = "day-17-part-2-badouralix"
+path = "./day-17/part-2/badouralix.rs"
