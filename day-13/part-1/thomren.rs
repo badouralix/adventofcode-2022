@@ -54,7 +54,7 @@ impl FromStr for Packet {
                 } else {
                     return Ok(p);
                 }
-            } else if (b'0'..=b'9').contains(&b) {
+            } else if b.is_ascii_digit() {
                 let (n, n_bytes) = atoi(&mut bytes[i..].iter());
                 i += n_bytes - 1;
                 if let Packet::Data(v) = stack.last_mut().unwrap() {

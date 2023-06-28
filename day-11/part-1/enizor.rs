@@ -9,18 +9,13 @@ fn main() {
     println!("{}", output);
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 enum Op {
     Add(u64),
     Mul(u64),
     Double,
+    #[default]
     Square,
-}
-
-impl Default for Op {
-    fn default() -> Self {
-        Op::Square
-    }
 }
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -81,8 +76,8 @@ impl MonkeyBand {
                 target_false,
                 inspected: 0,
             };
-            band.resize(band.len().max(monkey_num as usize + 1), Monkey::default());
-            band[monkey_num as usize] = monkey;
+            band.resize(band.len().max(monkey_num + 1), Monkey::default());
+            band[monkey_num] = monkey;
         }
         Self { items, band }
     }
@@ -92,7 +87,7 @@ impl MonkeyBand {
             let mut inspected = 0;
             let m = self.band[i];
             for item in &mut self.items {
-                if item.monkey as usize != i {
+                if item.monkey != i {
                     continue;
                 }
                 inspected += 1;
