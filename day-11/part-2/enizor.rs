@@ -9,18 +9,13 @@ fn main() {
     println!("{}", output);
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 enum Op {
     Add(u64),
     Mul(u64),
     Double,
+    #[default]
     Square,
-}
-
-impl Default for Op {
-    fn default() -> Self {
-        Op::Square
-    }
 }
 
 #[derive(Debug, Default, Clone, Copy)]
